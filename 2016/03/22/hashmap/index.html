@@ -100,10 +100,12 @@
 <meta property="og:url" content="http://yoursite.com/2016/03/22/hashmap/index.html">
 <meta property="og:site_name" content="朱瑞雪的写字板">
 <meta property="og:description" content="第一次实习面试的时候,小房间里面试官拿着一本本子,上来就告诉我自己是做Java的,然后问了我很多Java基础,当从HashMap如何使用到怎么实现的时候,我就两眼懵逼了,当问到安卓的Context是干什么的时候,我的内心直接被击中了。虽然写了好几个月的程序,却只停留在会用的基础上,而没去知其所以然,太脸红了。这次面试打开了我对程序语言执着研究的大门,还是菜鸟的我感觉到能问出这种问题,还如此谦虚的人">
-<meta property="og:updated_time" content="2017-06-10T06:49:56.000Z">
+<meta property="og:image" content="http://yoursite.com/Users/schnee/snowBlog/source/_posts/20131116091617994485.jpg">
+<meta property="og:updated_time" content="2017-06-14T09:39:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap理解">
 <meta name="twitter:description" content="第一次实习面试的时候,小房间里面试官拿着一本本子,上来就告诉我自己是做Java的,然后问了我很多Java基础,当从HashMap如何使用到怎么实现的时候,我就两眼懵逼了,当问到安卓的Context是干什么的时候,我的内心直接被击中了。虽然写了好几个月的程序,却只停留在会用的基础上,而没去知其所以然,太脸红了。这次面试打开了我对程序语言执着研究的大门,还是菜鸟的我感觉到能问出这种问题,还如此谦虚的人">
+<meta name="twitter:image" content="http://yoursite.com/Users/schnee/snowBlog/source/_posts/20131116091617994485.jpg">
 
 
 
@@ -208,6 +210,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -296,6 +308,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -321,68 +355,34 @@
 
       
         <p>第一次实习面试的时候,小房间里面试官拿着一本本子,上来就告诉我自己是做Java的,然后问了我很多Java基础,当从HashMap如何使用到怎么实现的时候,我就两眼懵逼了,当问到安卓的Context是干什么的时候,我的内心直接被击中了。虽然写了好几个月的程序,却只停留在会用的基础上,而没去知其所以然,太脸红了。这次面试打开了我对程序语言执着研究的大门,还是菜鸟的我感觉到能问出这种问题,还如此谦虚的人真是厉害,怀抱着大神带我飞的心情,几乎热泪盈眶的我欣然带着这份offer,准备跟着大神大干一场。结果当我入职的事后才知道,大神在我来的前几天就去支付宝了…言归正传,我就整理八经研究一下这个HashMap。</p>
-<h2 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h2><p>HashMap是程序编写过程中,再平常不过的一个集合类,通常通过他的<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">_HashMap_</div></pre></td></tr></table></figure></p>
-<p>public class HashMap<k,v> extends AbstractMap<k,v> implements Map<k,v>,<br>        Cloneable, Serializable { … }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">_AbstractMap_</div></pre></td></tr></table></figure></k,v></k,v></k,v></p>
-<p>public abstract class AbstractMap<k,v> implements Map<k,v> { … }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">HashMap继承于AbstractMap,Map定义了键值对的映射规则。AbstractMap内部也也实现了Map接口,</div><div class="line">这是为什么嘞？难道是为了强调吗,或者是反射getInterfaces的时候能够直接获取到Map,这里不是和明白,后续再补吧。</div><div class="line">&lt;/br&gt;</div><div class="line">### 构造方法</div><div class="line"></div><div class="line">HashMap的构造方法四个</div><div class="line">== Ps: 全局变量中已经指定默认的加载因子0.75,初始容量16 ==</div></pre></td></tr></table></figure></k,v></k,v></p>
-<p>public HashMap(int initialCapacity, float loadFactor)<br><!--构造一个带指定初始容量和默认加载因子(0.75)的空HashMap--><br>public HashMap(int initialCapacity) {<br>    this(initialCapacity, DEFAULT_LOAD_FACTOR);<br>}</p>
-<!--构造一个具有默认初始容量(16)和默认加载因子(0.75)的空HashMap-->
-<p>public HashMap() {<br>    this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);<br>}</p>
-<p>public HashMap(Map&lt;? extends K, ? extends V&gt; m){<br>    this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,<br>        DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">殊途同归,最终都指向了第一个构造方法。嗯,我们来看一下。</div></pre></td></tr></table></figure>
-<p>public HashMap(int initialCapacity, float loadFactor)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">这里有初始容量,加载因子两个参数,影响HashMap性能。</div><div class="line"></div><div class="line">_初始容量_ 是哈希表在创建时的容量。</div><div class="line"></div><div class="line">_加载因子_ 是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时,通过调用rehash 方法将容量翻倍。</div><div class="line"></div><div class="line">以下内容来自百度对于他们的理解：</div><div class="line">比如说向水桶中装水,此时HashMap就是一个桶, 这个桶的容量就是加载容量,而加载因子就是你要控制向这个桶中倒的水不超过水桶容量的比例,比如加载因子是0.75 ,那么在装水的时候这个桶最多能装到3/4 处,超过这个比例时,桶会自动扩容。因此,这个桶</div><div class="line">最多能装水 = 桶的容量 * 加载因子。</div><div class="line">如果桶的容量是40,加载因子是0.75</div><div class="line">那么你的桶最多能装40*0.75 = 30的水,如果你装了30的水还想继续装水,那么就该用大一点的桶,调用rehash就是负责增加桶的容量的方法。</div><div class="line">&lt;/br&gt;</div><div class="line">### 数据结构</div><div class="line"></div><div class="line">Java中最常用的两种结构是数组和模拟指针(引用),几乎所有的数据结构都可以利用这两种来组合实现,HashMap也是如此。实际上HashMap是一个“链表散列”,网上拔取了一张结构图：</div><div class="line"></div><div class="line">![](/Users/schnee/Desktop/20131116091617994485.jpg)</div><div class="line"></div><div class="line"></div><div class="line">HashMap底层还是数组,只是数组的每一项都是一条链,initialCapacity 代表数组长度。</div><div class="line"></div><div class="line">来吧,看看构造函数的内容：</div></pre></td></tr></table></figure></p>
-<pre><code>public HashMap(int initialCapacity, float loadFactor) {
-   &lt;!--   初始容量必须大于或者等于0  --&gt;
-    if (initialCapacity &lt; 0)
-        throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; +
-                initialCapacity);
-    &lt;!--  初始容量不能 &gt; 最大容量值,HashMap的最大容量值为2^30  --&gt;
-    if (initialCapacity &gt; MAXIMUM_CAPACITY) {
-        initialCapacity = MAXIMUM_CAPACITY;
-    } else if (initialCapacity &lt; DEFAULT_INITIAL_CAPACITY) {
-        initialCapacity = DEFAULT_INITIAL_CAPACITY;
-    }
-        &lt;!--   加载因子不能小于0   --&gt;
-    if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))
-        throw new IllegalArgumentException(&quot;Illegal load factor: &quot; +
-                loadFactor);
-    threshold = initialCapacity;
-    &lt;!--  这个方法留给子类重写,里面什么都没有  --&gt;
-    init();    
- }
-</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;/br&gt;     </div><div class="line">### 存储数据</div><div class="line">数据存储用的是```put(k,v)```的方式</div></pre></td></tr></table></figure>
-<p>public V put(K key, V value) {<br>    // 如果表是空的 就新建一个HashTable<br>    if (table == EMPTY_TABLE) {<br>        inflateTable(threshold);<br>    }</p>
-<pre><code>// key可以是null,调用putForNullKey方法,保存null与table第一个位置中
-if (key == null)
-    return putForNullKey(value);
-// 获取key的哈希
-int hash = sun.misc.Hashing.singleWordWangJenkinsHash(key);
-
-// 计算key hash 值在 table 数组中的位置
-int i = indexFor(hash, table.length);
-
-// 迭代找出key的位置,为了得到 value
-for (HashMapEntry&lt;K, V&gt; e = table[i]; e != null; e = e.next) {
-    Object k;
-    // 如果key重复了 返回老的value （所以put的结果是个object）
-    if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) {
-        V oldValue = e.value;
-        e.value = value;
-        e.recordAccess(this);
-        return oldValue;
-    }
-}
-// 添加一次修改
-modCount++;
-// 将key、value添加至i位置处 替换
-addEntry(hash, key, value, i);
-return null;
-</code></pre><p>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">殊途同归,最终都指向了第一个构造方法。嗯,我们来看一下。</div></pre></td></tr></table></figure>
-<p>public HashMap(int initialCapacity, float loadFactor)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">这里有初始容量,加载因子两个参数,影响HashMap性能。</div><div class="line"></div><div class="line">_初始容量_	是哈希表在创建时的容量。</div><div class="line"></div><div class="line">_加载因子_	是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时,通过调用rehash 方法将容量翻倍。</div><div class="line"></div><div class="line">以下内容来自百度对于他们的理解：</div><div class="line">比如说向水桶中装水,此时HashMap就是一个桶, 这个桶的容量就是加载容量,而加载因子就是你要控制向这个桶中倒的水不超过水桶容量的比例,比如加载因子是0.75 ,那么在装水的时候这个桶最多能装到3/4 处,超过这个比例时,桶会自动扩容。因此,这个桶</div><div class="line">最多能装水 = 桶的容量 * 加载因子。</div><div class="line">如果桶的容量是40,加载因子是0.75</div><div class="line">那么你的桶最多能装40*0.75 = 30的水,如果你装了30的水还想继续装水,那么就该用大一点的桶,调用rehash就是负责增加桶的容量的方法。</div><div class="line">&lt;/br&gt;</div><div class="line"></div><div class="line">#### 计算哈希值的方法</div></pre></td></tr></table></figure></p>
-<p>static int hash(int h) {<br>    h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);<br>    return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);<br>    }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">我们知道对于HashMap的table而言,数据分布需要均匀（最好每项都只有一个元素,这样就可以直接找到）,不能太紧也不能太松,太紧会导致查询速度慢,太松则浪费空间。计算hash值后,怎么才能保证table元素分布均与呢？我们会想到取模,但是由于取模的消耗较大,HashMap是这样处理的：调用indexFor方法。</div></pre></td></tr></table></figure></p>
-<p>static int indexFor(int h, int length) {<br>// assert Integer.bitCount(length) == 1 : “length must be a non-zero power of 2”;<br>        return h &amp; (length - 1);<br> }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">HashMap的底层数组长度总是2的n次方,在构造函数中存在：capacity &lt;&lt;= 1;这样做总是能够保证HashMap的底层数组长度为2的n次方。当length为2的n次方时,h&amp;(length - 1)就相当于对length取模,而且速度比直接取模快得多,这是HashMap在速度上的一个优化。</div><div class="line">&lt;/br&gt;</div><div class="line">### 取数据</div><div class="line">数据获取用的是```get(key)```的形式。</div></pre></td></tr></table></figure></p>
-<p>public V get(Object key) {<br>    <!--key为空的情况下,内容的获取--><br>    if (key == null)<br>        return getForNullKey();<br>    Entry<k, v=""> entry = getEntry(key);<br>    return null == entry ? null : entry.getValue();<br>  }<br><!--获取方法--><br>  private V getForNullKey() {<br>          if (size == 0) {<br>              return null;<br>          }<br>          for (HashMapEntry<k, v=""> e = table[0]; e != null; e = e.next) {<br>              if (e.key == null)<br>                  return e.value;<br>          }<br>          return null;<br>      }<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">还有个比较重要的方法</div></pre></td></tr></table></figure></k,></k,></p>
-<p>final Entry<k, v=""> getEntry (Object key) {<br>    if (size == 0) {<br>        return null;<br>        }<br>   int hash = (key == null) ? 0 : sun.misc.Hashing.singleWordWangJenkinsHash(key);<br>   for (HashMapEntry<k, v=""> e = table[indexFor(hash, table.length)]; e != null;<br>           e = e.next) {<br>        Object k;<br>       if (e.hash == hash &amp;&amp; ((k = e.key) == key || (key != null &amp;&amp;key.equals(k))))<br>                    return e;<br>            }<br>            return null;<br>        }<br>```</k,></k,></p>
+<h2 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h2><p>HashMap是程序编写过程中,再平常不过的一个集合类,通常通过他的<code>put(key,value)</code>和<code>get(key)</code>方法来存取数据,数据存取的类型非常多样,而且允许<code>key</code>和<code>value</code>为<code>null</code>。直接上源码：<br><em>HashMap</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">public class HashMap&lt;K,V&gt; extends AbstractMap&lt;K,V&gt; implements Map&lt;K,V&gt;, </div><div class="line">Cloneable, Serializable &#123; ... &#125;</div></pre></td></tr></table></figure></p>
+<p><em>AbstractMap</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public abstract class AbstractMap&lt;K,V&gt; implements Map&lt;K,V&gt; &#123; ... &#125;</div></pre></td></tr></table></figure></p>
+<p>HashMap继承于AbstractMap,Map定义了键值对的映射规则。AbstractMap内部也也实现了Map接口,<br>这是为什么嘞？难道是为了强调吗,或者是反射getInterfaces的时候能够直接获取到Map,这里不是和明白,后续再补吧。</p>
+<h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><p>HashMap的构造方法四个<br><strong>Ps: 全局变量中已经指定默认的加载因子0.75,初始容量16</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor)</div><div class="line">&lt;!--构造一个带指定初始容量和默认加载因子(0.75)的空HashMap--&gt;</div><div class="line">public HashMap(int initialCapacity) &#123;</div><div class="line">	this(initialCapacity, DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div><div class="line"></div><div class="line">&lt;!--构造一个具有默认初始容量(16)和默认加载因子(0.75)的空HashMap--&gt;</div><div class="line">public HashMap() &#123;</div><div class="line">	this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div><div class="line"></div><div class="line">public HashMap(Map&lt;? extends K, ? extends V&gt; m)&#123;</div><div class="line">	this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,</div><div class="line">		DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>殊途同归,最终都指向了第一个构造方法。嗯,我们来看一下。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor)</div></pre></td></tr></table></figure></p>
+<p>这里有初始容量,加载因子两个参数,影响HashMap性能。</p>
+<p><em>初始容量</em>  是哈希表在创建时的容量。</p>
+<p><em>加载因子</em>  是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时,通过调用rehash 方法将容量翻倍。</p>
+<p>以下内容来自百度对于他们的理解：<br>比如说向水桶中装水,此时HashMap就是一个桶, 这个桶的容量就是加载容量,而加载因子就是你要控制向这个桶中倒的水不超过水桶容量的比例,比如加载因子是0.75 ,那么在装水的时候这个桶最多能装到3/4 处,超过这个比例时,桶会自动扩容。因此,这个桶<br>最多能装水 = 桶的容量 <em> 加载因子。<br>如果桶的容量是40,加载因子是0.75<br>那么你的桶最多能装40</em>0.75 = 30的水,如果你装了30的水还想继续装水,那么就该用大一点的桶,调用rehash就是负责增加桶的容量的方法。</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>Java中最常用的两种结构是数组和模拟指针(引用),几乎所有的数据结构都可以利用这两种来组合实现,HashMap也是如此。实际上HashMap是一个“链表散列”,网上扒取了一张结构图：</p>
+<p><img src="/Users/schnee/snowBlog/source/_posts/20131116091617994485.jpg" alt=""></p>
+<p>HashMap底层还是数组,只是数组的每一项都是一条链,initialCapacity 代表数组长度。</p>
+<p>来吧,看看构造函数的内容:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor) &#123;</div><div class="line">&lt;!--   初始容量必须大于或者等于0  --&gt;</div><div class="line">   if (initialCapacity &lt; 0)</div><div class="line">       throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; +</div><div class="line">               initialCapacity);</div><div class="line">   &lt;!--  初始容量不能 &gt; 最大容量值,HashMap的最大容量值为2^30  --&gt;</div><div class="line">   if (initialCapacity &gt; MAXIMUM_CAPACITY) &#123;</div><div class="line">       initialCapacity = MAXIMUM_CAPACITY;</div><div class="line">   &#125; else if (initialCapacity &lt; DEFAULT_INITIAL_CAPACITY) &#123;</div><div class="line">       initialCapacity = DEFAULT_INITIAL_CAPACITY;</div><div class="line">   &#125;</div><div class="line">		&lt;!--   加载因子不能小于0   --&gt;</div><div class="line">   if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))</div><div class="line">       throw new IllegalArgumentException(&quot;Illegal load factor: &quot; +</div><div class="line">               loadFactor);</div><div class="line">   threshold = initialCapacity;</div><div class="line">   &lt;!--  这个方法留给子类重写,里面什么都没有  --&gt;</div><div class="line">   init();    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><p>数据存储用的是<code>put(k,v)</code>的方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">        // 如果表是空的 就新建一个HashTable</div><div class="line">        if (table == EMPTY_TABLE) &#123;</div><div class="line">            inflateTable(threshold);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // key可以是null,调用putForNullKey方法,保存null与table第一个位置中</div><div class="line">        if (key == null)</div><div class="line">            return putForNullKey(value);</div><div class="line">        // 获取key的哈希</div><div class="line">        int hash = sun.misc.Hashing.singleWordWangJenkinsHash(key);</div><div class="line"></div><div class="line">        // 计算key hash 值在 table 数组中的位置</div><div class="line">        int i = indexFor(hash, table.length);</div><div class="line"></div><div class="line">        // 迭代找出key的位置,为了得到 value</div><div class="line">        for (HashMapEntry&lt;K, V&gt; e = table[i]; e != null; e = e.next) &#123;</div><div class="line">            Object k;</div><div class="line">            // 如果key重复了 返回老的value （所以put的结果是个object）</div><div class="line">            if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</div><div class="line">                V oldValue = e.value;</div><div class="line">                e.value = value;</div><div class="line">                e.recordAccess(this);</div><div class="line">                return oldValue;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        // 添加一次修改</div><div class="line">        modCount++;</div><div class="line">        // 将key、value添加至i位置处 替换</div><div class="line">        addEntry(hash, key, value, i);</div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>殊途同归,最终都指向了第一个构造方法。嗯,我们来看一下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor)</div></pre></td></tr></table></figure>
+<p>这里有初始容量,加载因子两个参数,影响HashMap性能。<br><em>初始容量</em>    是哈希表在创建时的容量。<br><em>加载因子</em>    是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时,通过调用rehash 方法将容量翻倍。</p>
+<p>以下内容来自百度对于他们的理解：<br>比如说向水桶中装水,此时HashMap就是一个桶, 这个桶的容量就是加载容量,而加载因子就是你要控制向这个桶中倒的水不超过水桶容量的比例,比如加载因子是0.75 ,那么在装水的时候这个桶最多能装到3/4 处,超过这个比例时,桶会自动扩容。因此,这个桶<br>最多能装水 = 桶的容量 <em> 加载因子。<br>如果桶的容量是40,加载因子是0.75<br>那么你的桶最多能装40</em>0.75 = 30的水,如果你装了30的水还想继续装水,那么就该用大一点的桶,调用rehash就是负责增加桶的容量的方法。</p>
+<h4 id="计算哈希值的方法"><a href="#计算哈希值的方法" class="headerlink" title="计算哈希值的方法"></a>计算哈希值的方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">static int hash(int h) &#123;</div><div class="line">	h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);</div><div class="line">	return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们知道对于HashMap的table而言,数据分布需要均匀（最好每项都只有一个元素,这样就可以直接找到）,不能太紧也不能太松,太紧会导致查询速度慢,太松则浪费空间。计算hash值后,怎么才能保证table元素分布均与呢？我们会想到取模,但是由于取模的消耗较大,HashMap是这样处理的：调用indexFor方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">static int indexFor(int h, int length) &#123;</div><div class="line">&lt;!--assert Integer.bitCount(length) == 1 : &quot;length must be a non-zero power of 2&quot;;--&gt;</div><div class="line">        return h &amp; (length - 1);</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>HashMap的底层数组长度总是2的n次方,在构造函数中存在：capacity &lt;&lt;= 1;这样做总是能够保证HashMap的底层数组长度为2的n次方。当length为2的n次方时,h&amp;(length - 1)就相当于对length取模,而且速度比直接取模快得多,这是HashMap在速度上的一个优化。</p>
+<h3 id="取数据"><a href="#取数据" class="headerlink" title="取数据"></a>取数据</h3><p>数据获取用的是<code>get(key)</code>的形式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">	&lt;!--key为空的情况下,内容的获取--&gt;</div><div class="line">	if (key == null)</div><div class="line">		return getForNullKey();</div><div class="line">	Entry&lt;K, V&gt; entry = getEntry(key);</div><div class="line">	return null == entry ? null : entry.getValue();</div><div class="line">&#125;</div><div class="line">&lt;!--获取方法--&gt;</div><div class="line">private V getForNullKey() &#123;</div><div class="line">  if (size == 0) &#123;</div><div class="line">   return null;</div><div class="line"> &#125;</div><div class="line"> for (HashMapEntry&lt;K, V&gt; e = table[0]; e != null; e = e.next) &#123;</div><div class="line">   if (e.key == null)</div><div class="line">    return e.value;</div><div class="line">&#125;</div><div class="line">return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>还有个比较重要的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">final Entry&lt;K, V&gt; getEntry (Object key) &#123;</div><div class="line">  if (size == 0) &#123;</div><div class="line">    return null;</div><div class="line">  &#125;</div><div class="line">  int hash = (key == null) ? 0 : sun.misc.Hashing.singleWordWangJenkinsHash(key);</div><div class="line">  for (HashMapEntry&lt;K, V&gt; e = table[indexFor(hash, table.length)]; e != null;</div><div class="line">    e = e.next) &#123;</div><div class="line">    Object k;</div><div class="line">  if (e.hash == hash &amp;&amp; ((k = e.key) == key || (key != null &amp;&amp;key.equals(k)))) </div><div class="line">    return e;</div><div class="line">&#125;</div><div class="line">return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>Entry是Map接口内的一个接口,他的作用就是包装一个map的节点,这个节封装了key,value,以及别的值（比如hashmap中的哈希码和next指针）,方便对Map的操作。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>由此看出,数据结构基础不好,看这个真费劲。明白是明白,但是真叫你一点点写出来,是想扑街的。</p>
 <p>HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象。当我们将键值对传递给put()方法时，它调用键对象的hashCode()方法来计算hashcode，然后找到bucket位置来储存值对象。当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 HashMap在每个链表节点中储存键值对对象。<br>当两个不同的键对象的hashcode相同时会发生什么？ 它们会储存在同一个bucket位置的链表中。键对象的equals()方法用来找到键值对。<br>因为HashMap的好处非常多，我曾经在电子商务的应用中使用HashMap作为缓存。因为金融领域非常多的运用Java，也出于性能的考虑，我们会经常用到HashMap和ConcurrentHashMap。</p>
@@ -520,6 +520,15 @@ return null;
           
 
           
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
 
           
             
@@ -537,6 +546,26 @@ return null;
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/SnowMusic" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/270955001/home" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
           
         </div>
 
@@ -561,7 +590,7 @@ return null;
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap"><span class="nav-number">1.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap"><span class="nav-number">1.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构造方法"><span class="nav-number">1.1.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据结构"><span class="nav-number">1.2.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储数据"><span class="nav-number">1.3.</span> <span class="nav-text">存储数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#计算哈希值的方法"><span class="nav-number">1.3.1.</span> <span class="nav-text">计算哈希值的方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取数据"><span class="nav-number">1.4.</span> <span class="nav-text">取数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
             
 
           </div>
