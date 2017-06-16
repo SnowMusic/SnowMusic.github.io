@@ -266,6 +266,143 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/15/知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/06/15/知识点/" itemprop="url">常用知识点汇总</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-15T17:14:02+08:00">
+                2017-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近不管是学python学写前端还是深入安卓，都喜欢做笔记，写在年初开工时候，公司发的笔记本上。边写边学边欣赏自己的字，然后就是一种因为学习而内心充实的满足感。<br>本篇记录一下自己觉得比较重要的知识点。</p>
+<h4 id="1-ImageLoader相关"><a href="#1-ImageLoader相关" class="headerlink" title="1. ImageLoader相关"></a>1. ImageLoader相关</h4><h5 id="1-1-如何做缓存"><a href="#1-1-如何做缓存" class="headerlink" title="1.1 如何做缓存"></a>1.1 如何做缓存</h5><p>ImageLoader在请求数据的时候，会根据key，先去memory cache中去找Bitmap，找到的话就返回这个图片，找不到的话就去disk file中去拿，还是拿不到的话就去数据源请求，然后同时保存到memory cache和disk cache中</p>
+<h5 id="1-2-lru的特性"><a href="#1-2-lru的特性" class="headerlink" title="1.2 lru的特性"></a>1.2 lru的特性</h5><p>ImageLoader用的缓存算法是LRU，近期最少使用算法。理解为如果一个数据最近被访问，那他将来被访问的概率也会很大（有点像皇帝宠幸爱妃啊）。大概原理是，他自己维护着一个链表，所有被访问的元素都有被访问的属性，如果一个数据被访问了（行话叫缓存命中），就把他丢到表头，如果这个链表满了，就把尾巴上的那个数据给拿掉。</p>
+<h5 id="1-3-相关容器"><a href="#1-3-相关容器" class="headerlink" title="1.3 相关容器"></a>1.3 相关容器</h5><p>因为用的是lru，既要保持队形，又要记住它的属性，所以LinkedHashMap再合适不过了。LinkedHashMap是HashMap的子类，由于HashMap的底层实现，所以它是无序的，但是LinkedHashMap保存了记录的插入顺序。通常HashMap遍历起来比LinkedHashMap快，LinkedHashMap的遍历速度只和实际数据有关，和容量无关，而HashMap的遍历速度和他的容量有关。</p>
+<h4 id="2-集合相关"><a href="#2-集合相关" class="headerlink" title="2. 集合相关"></a>2. 集合相关</h4><h5 id="2-1-ArrayList如何实现"><a href="#2-1-ArrayList如何实现" class="headerlink" title="2.1 ArrayList如何实现"></a>2.1 ArrayList如何实现</h5><h5 id="2-2-HashMap如何实现"><a href="#2-2-HashMap如何实现" class="headerlink" title="2.2 HashMap如何实现"></a>2.2 HashMap如何实现</h5><h5 id="2-3-HashMap和ArrayMap适用场景"><a href="#2-3-HashMap和ArrayMap适用场景" class="headerlink" title="2.3 HashMap和ArrayMap适用场景"></a>2.3 HashMap和ArrayMap适用场景</h5><h4 id="3-volatile和sychronise区别"><a href="#3-volatile和sychronise区别" class="headerlink" title="3. volatile和sychronise区别"></a>3. volatile和sychronise区别</h4><h4 id="4-http相关"><a href="#4-http相关" class="headerlink" title="4. http相关"></a>4. http相关</h4><h5 id="4-1-什么是http协议"><a href="#4-1-什么是http协议" class="headerlink" title="4.1 什么是http协议"></a>4.1 什么是http协议</h5><h5 id="4-2-为什么要用tcp"><a href="#4-2-为什么要用tcp" class="headerlink" title="4.2 为什么要用tcp"></a>4.2 为什么要用tcp</h5><h4 id="5-如何做内存管理"><a href="#5-如何做内存管理" class="headerlink" title="5. 如何做内存管理"></a>5. 如何做内存管理</h4><h4 id="6-线程通信"><a href="#6-线程通信" class="headerlink" title="6. 线程通信"></a>6. 线程通信</h4><h4 id="7-进程通信"><a href="#7-进程通信" class="headerlink" title="7. 进程通信"></a>7. 进程通信</h4>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/25/algo算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1497,195 +1634,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/01/安卓的简单常识－（半岛版）/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/11/01/安卓的简单常识－（半岛版）/" itemprop="url">安卓的简单常识－（半岛版）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-01T15:47:02+08:00">
-                2016-11-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="关键词"><a href="#关键词" class="headerlink" title="关键词"></a>关键词</h2><ul>
-<li>适配    </li>
-<li>［1］ 尺寸</li>
-<li>［2］ 样式 barlayout</li>
-<li>弹窗等样式</li>
-<li>apk和压缩文件的区别 </li>
-<li>为什么 两个手机样式不一样？收不到推送？安装不了？ </li>
-</ul>
-<h3 id="checklist"><a href="#checklist" class="headerlink" title="checklist"></a>checklist</h3><ul>
-<li>推送</li>
-<li>app版本号</li>
-<li>server api版本</li>
-</ul>
-<h2 id="推广"><a href="#推广" class="headerlink" title="推广"></a>推广</h2><ul>
-<li><ol>
-<li>友盟统计</li>
-</ol>
-</li>
-<li><ol>
-<li>友盟升级</li>
-</ol>
-</li>
-<li><ol>
-<li>集成测试</li>
-</ol>
-</li>
-</ul>
-<h3 id="统计"><a href="#统计" class="headerlink" title="统计"></a>统计</h3><ul>
-<li>新增用户</li>
-<li>事件统计</li>
-<li>下载统计</li>
-<li><p>渠道统计</p>
-</li>
-<li><p>android 渠道包</p>
-</li>
-<li>ios adplus</li>
-</ul>
-<h3 id="升级"><a href="#升级" class="headerlink" title="升级"></a>升级</h3><h4 id="升级后的变化"><a href="#升级后的变化" class="headerlink" title="升级后的变化"></a>升级后的变化</h4><ul>
-<li>渠道</li>
-</ul>
-<h3 id="推广-1"><a href="#推广-1" class="headerlink" title="推广"></a>推广</h3><ul>
-<li>adplus（umengtrack）</li>
-<li>talkdata</li>
-</ul>
-<h4 id="推广原理："><a href="#推广原理：" class="headerlink" title="推广原理："></a>推广原理：</h4><p>umeng</p>
-<ul>
-<li><p>通过对应用appstoreURL进行封装，获取分渠道点击用户的相关信息，包括：时间、ip、设备类型、操作系统版本；</p>
-</li>
-<li><p>通过在应用中集成监控代码，获取初次打开应用的用户信息，包括时间、ip、设备类型、操作版本、UDID和MAC地址；</p>
-</li>
-<li><p>实时比对不同渠道的点击信息和应用激活用户信息，区分出不同渠道带来的激活用户；</p>
-</li>
-<li><p>此统计方式不用媒介提供点击UDID，实时自动比对，会存在一定误差，但可以基本衡量各渠道之间以及不同时期的渠道激活转化数据。</p>
-<p>Ps:说明很清楚，此方法不是严格的UDID跟踪（因为封装的AppStore URL是获取不到设备的          UDID），但是使用点击时间和启动时间的差值、所在IP和iOS版本信息等其他可获取信息进行比对，所以虽不能称为精确，但也对各渠道的推广效果有一定的反映。</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1735,7 +1683,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
