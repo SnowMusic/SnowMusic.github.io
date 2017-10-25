@@ -266,6 +266,141 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/05/BaseActivity里面设置标题栏/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/05/BaseActivity里面设置标题栏/" itemprop="url">BaseActivity里面设置标题栏</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-05T17:43:00+08:00">
+                2017-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>当项目需要统一标题栏的时候，官方的答案是每个布局里面include一个布局，想来是多么麻烦，那哪能叫程序员的做法。<br>自己封装的baseactivity的关键代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initActionBar</span><span class="params">()</span> </span>&#123;</div><div class="line">       actionBar = getSupportActionBar();</div><div class="line">       ActionBar.LayoutParams params = <span class="keyword">new</span> ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);</div><div class="line">       View view = LayoutInflater.from(<span class="keyword">this</span>).inflate(R.layout.aty_news_bar, <span class="keyword">null</span>);</div><div class="line">       actionBar.setCustomView(view, params);</div><div class="line">       actionBar.setDisplayShowCustomEnabled(<span class="keyword">true</span>);</div><div class="line">       actionBar.setDisplayShowTitleEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setDisplayHomeAsUpEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setDisplayUseLogoEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setHomeButtonEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setElevation(<span class="number">0</span>);</div><div class="line">       Toolbar parent = (Toolbar) view.getParent();</div><div class="line">       parent.setContentInsetsAbsolute(<span class="number">0</span>, <span class="number">0</span>);</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<p>放在baseactivity里面，不用setcontentview</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/01/安卓的简单常识－（半岛版）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1067,7 +1202,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
