@@ -266,6 +266,592 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/12/EventBus3-0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/12/EventBus3-0/" itemprop="url">EventBus3.0解析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-12T17:05:52+08:00">
+                2018-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="EventBus-3-0解析"><a href="#EventBus-3-0解析" class="headerlink" title="EventBus 3.0解析"></a>EventBus 3.0解析</h1><p>==以下是基于3.0的代码进行的<br>git仓库:<a href="https://github.com/greenrobot/EventBus.git==" target="_blank" rel="external">https://github.com/greenrobot/EventBus.git==</a></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>简单来说，EventBus是用在Activity，Service，Fragment以及Thread之间的一个事件总线框架，用来在他们之间传递消息。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>下面简述一下用法。</p>
+<ol>
+<li>module级别的gradle中添加依赖 <code>compile&#39;org.greenrobot:eventbus:3.0.0&#39;</code> </li>
+<li>拿Activity为例，在onCreate中添加注册代码 <code>EventBus.getDefault().register(this)</code>，同时在onDestory中添加注销代码<code>EventBus.getDefault().unregister(this)</code><br>3.在当前事件的订阅者中添加Event方法，方法内部参数为你的事件类型。<br>4.在事件发送的class里面通过post(事件类型)来传达你的信息</li>
+</ol>
+<h2 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h2><p>还是带着问题来看代码吧，这样到最后至少给自己一个交代：理解了什么。<br>其实要去看源码的时候，大都是会用这样一个东西了，那我就会想，如果要我自己去实现这个bus我会怎么做。嗯，<br>a. 得有个东西收集我的订阅的事情吧，然后当有人发布事件的时候，还能通知我；<br>b. 也得有个方法，当我被销毁的时候，事件是不是也得被移除，不删除的话必然npe了；<br>c. 粘性事件<br>d. 事件分发的原理</p>
+<h3 id="注册过程"><a href="#注册过程" class="headerlink" title="注册过程"></a>注册过程</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(Object subscriber)</span> </span>&#123;</div><div class="line">      <span class="comment">//获取订阅者的类名</span></div><div class="line">      Class&lt;?&gt; subscriberClass = subscriber.getClass();</div><div class="line">      <span class="comment">// 根据类名去查找他订阅的方法  SubscriberMethod里面包含订阅者的类名，方法的优先级，线程以及方法</span></div><div class="line">      List&lt;SubscriberMethod&gt; subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);</div><div class="line">      <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">          <span class="comment">//遍历当前类的所有订阅方法，把他们放进list里面</span></div><div class="line">          <span class="keyword">for</span> (SubscriberMethod subscriberMethod : subscriberMethods) &#123;</div><div class="line">              subscribe(subscriber, subscriberMethod);</div><div class="line">          &#125;</div><div class="line">      &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>// 下面是订阅方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(Object subscriber, SubscriberMethod subscriberMethod)</span> </span>&#123;</div><div class="line">    Class&lt;?&gt; eventType = subscriberMethod.eventType;</div><div class="line">    <span class="comment">//将subscriber和subscriberMethod封装成 Subscription</span></div><div class="line">    Subscription newSubscription = <span class="keyword">new</span> Subscription(subscriber, subscriberMethod);</div><div class="line">    <span class="comment">//根据事件类型获取特定的 Subscription</span></div><div class="line">    CopyOnWriteArrayList&lt;Subscription&gt; subscriptions = subscriptionsByEventType.get(eventType);</div><div class="line">    <span class="comment">//如果为null，说明该subscriber尚未注册该事件</span></div><div class="line">    <span class="keyword">if</span> (subscriptions == <span class="keyword">null</span>) &#123;</div><div class="line">        subscriptions = <span class="keyword">new</span> CopyOnWriteArrayList&lt;&gt;();</div><div class="line">        subscriptionsByEventType.put(eventType, subscriptions);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">//如果不为null，并且包含了这个subscription 那么说明该subscriber已经注册了该事件，抛出异常</span></div><div class="line">        <span class="keyword">if</span> (subscriptions.contains(newSubscription)) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> EventBusException(<span class="string">"Subscriber "</span> + subscriber.getClass() + <span class="string">" already registered to event "</span></div><div class="line">                    + eventType);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//根据优先级来设置放进subscriptions的位置，优先级高的会先被通知</span></div><div class="line">    <span class="keyword">int</span> size = subscriptions.size();</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= size; i++) &#123;</div><div class="line">        <span class="keyword">if</span> (i == size || subscriberMethod.priority &gt; subscriptions.get(i).subscriberMethod.priority) &#123;</div><div class="line">            subscriptions.add(i, newSubscription);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//根据subscriber(订阅者)来获取它的所有订阅事件</span></div><div class="line">    List&lt;Class&lt;?&gt;&gt; subscribedEvents = typesBySubscriber.get(subscriber);</div><div class="line">    <span class="keyword">if</span> (subscribedEvents == <span class="keyword">null</span>) &#123;</div><div class="line">        subscribedEvents = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="comment">//把订阅者、事件放进typesBySubscriber这个Map中</span></div><div class="line">        typesBySubscriber.put(subscriber, subscribedEvents);</div><div class="line">    &#125;</div><div class="line">    subscribedEvents.add(eventType);</div><div class="line"></div><div class="line">    <span class="comment">//下面是对粘性事件的处理</span></div><div class="line">    <span class="keyword">if</span> (subscriberMethod.sticky) &#123;</div><div class="line">        <span class="comment">//从EventBusBuilder可知，eventInheritance默认为true.</span></div><div class="line">        <span class="keyword">if</span> (eventInheritance) &#123;</div><div class="line">            <span class="comment">// Existing sticky events of all subclasses of eventType have to be considered.</span></div><div class="line">            <span class="comment">// Note: Iterating over all events may be inefficient with lots of sticky events,</span></div><div class="line">            <span class="comment">// thus data structure should be changed to allow a more efficient lookup</span></div><div class="line">            <span class="comment">// (e.g. an additional map storing sub classes of super classes: Class -&gt; List&lt;Class&gt;).</span></div><div class="line">            Set&lt;Map.Entry&lt;Class&lt;?&gt;, Object&gt;&gt; entries = stickyEvents.entrySet();</div><div class="line">            <span class="keyword">for</span> (Map.Entry&lt;Class&lt;?&gt;, Object&gt; entry : entries) &#123;</div><div class="line">                Class&lt;?&gt; candidateEventType = entry.getKey();</div><div class="line">                <span class="keyword">if</span> (eventType.isAssignableFrom(candidateEventType)) &#123;</div><div class="line">                    Object stickyEvent = entry.getValue();</div><div class="line">                    checkPostStickyEventToSubscription(newSubscription, stickyEvent);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">//根据eventType，从stickyEvents列表中获取特定的事件</span></div><div class="line">            Object stickyEvent = stickyEvents.get(eventType);</div><div class="line">            <span class="comment">//分发事件</span></div><div class="line">            checkPostStickyEventToSubscription(newSubscription, stickyEvent);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先，他先去自己家里面找，看一下这个对象，准确的说应该是这个类，有没有在EventBus里面注册过如果注册过就直接拿出保存method的list，否则就建立个list，通过注解信息(findUsingReflection)，或者(findUsingInfo)两个方法来拿到注册的方法。然后以eventType(类名)作为key，将他们存起来。</p>
+<h4 id="粘性事件-stickyEvent"><a href="#粘性事件-stickyEvent" class="headerlink" title="粘性事件(stickyEvent)"></a>粘性事件(stickyEvent)</h4><p>粘性事件与一般的事件不同，粘性事件是先发送出去，然后让后面注册的订阅者能够收到该事件.<br>事件发送的时候是通过<code>postSticky</code>方法发送的，然后把事件放到stickyEvents这个map里面去，和原来的区分开，最后调用post方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postSticky</span><span class="params">(Object event)</span> </span>&#123;</div><div class="line">     <span class="keyword">synchronized</span> (stickyEvents) &#123;</div><div class="line">        stickyEvents.put(event.getClass(), event);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// Should be posted after it is putted, in case the subscriber wants to remove immediately</span></div><div class="line">    post(event);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>那么为什么当注册订阅者的时候可以马上接收到匹配的事件呢。这是由于在subscribe方法中，我们都会便利一遍所有的粘性事件，然后调用<code>checkPostStickyEventToSubscription</code>方法进行分发。</p>
+<h3 id="unRegister-注销过程"><a href="#unRegister-注销过程" class="headerlink" title="unRegister 注销过程"></a>unRegister 注销过程</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">unregister</span><span class="params">(Object subscriber)</span> </span>&#123;</div><div class="line">    <span class="comment">//根据当前订阅者来获取自身所订阅的所有事件</span></div><div class="line">    List&lt;Class&lt;?&gt;&gt; subscribedTypes = typesBySubscriber.get(subscriber);</div><div class="line">    <span class="keyword">if</span> (subscribedTypes != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="comment">//遍历所有事件注销</span></div><div class="line">        <span class="keyword">for</span> (Class&lt;?&gt; eventType : subscribedTypes) &#123;</div><div class="line">            unsubscribeByEventType(subscriber, eventType);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 注销每个事件之后，订阅者也要被清除掉</span></div><div class="line">        typesBySubscriber.remove(subscriber);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Subscriber to unregister was not registered before: "</span> + subscriber.getClass());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>结合注册过程，注销比较容易理解。我注册的时候不是有两个集合放订阅方法和订阅者吗，注销的时候我就从typesBySubscriber里面拿到当前subscriber订阅的所有方法，让subscriptionsByEventType去删除，然后再把这个订阅者拿掉。</p>
+<h3 id="事件如何调用"><a href="#事件如何调用" class="headerlink" title="事件如何调用"></a>事件如何调用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">/** Posts the given event to the event bus. */</span></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">post</span><span class="params">(Object event)</span> </span>&#123;</div><div class="line">    <span class="comment">//获取一个postingState</span></div><div class="line">    PostingThreadState postingState = currentPostingThreadState.get();</div><div class="line">    List&lt;Object&gt; eventQueue = postingState.eventQueue;</div><div class="line">    <span class="comment">//将事件加入队列中</span></div><div class="line">    eventQueue.add(event);</div><div class="line">    <span class="keyword">if</span> (!postingState.isPosting) &#123;</div><div class="line">    <span class="comment">//判断当前线程是否是主线程</span></div><div class="line">            postingState.isMainThread = isMainThread();</div><div class="line">            postingState.isPosting = <span class="keyword">true</span>;</div><div class="line">            <span class="keyword">if</span> (postingState.canceled) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> EventBusException(<span class="string">"Internal error. Abort state was not reset"</span>);</div><div class="line">            &#125;        </div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">            <span class="comment">//循环从队列中将事件进行分发</span></div><div class="line">            <span class="keyword">while</span> (!eventQueue.isEmpty()) &#123;</div><div class="line">                postSingleEvent(eventQueue.remove(<span class="number">0</span>), postingState);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line">            postingState.isPosting = <span class="keyword">false</span>;</div><div class="line">            postingState.isMainThread = <span class="keyword">false</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">postSingleEvent</span><span class="params">(Object event, PostingThreadState postingState)</span> <span class="keyword">throws</span> Error </span>&#123;</div><div class="line">    Class&lt;?&gt; eventClass = event.getClass();</div><div class="line">    <span class="keyword">boolean</span> subscriptionFound = <span class="keyword">false</span>;</div><div class="line">    <span class="comment">//eventInheritance  事件继承。EventBus会考虑事件的继承树</span></div><div class="line">    <span class="comment">//如果事件继承自父类，那么父类也会作为事件被发送</span></div><div class="line">    <span class="keyword">if</span> (eventInheritance) &#123;</div><div class="line">        <span class="comment">//查找该事件的祖宗十八代以及接口</span></div><div class="line">        List&lt;Class&lt;?&gt;&gt; eventTypes = lookupAllEventTypes(eventClass);</div><div class="line">        <span class="keyword">int</span> countTypes = eventTypes.size();</div><div class="line">      <span class="comment">//遍历</span></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> h = <span class="number">0</span>; h &lt; countTypes; h++) &#123;</div><div class="line">            Class&lt;?&gt; clazz = eventTypes.get(h);</div><div class="line">            subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="comment">//如果没人订阅这个事件就抛出异常</span></div><div class="line">    <span class="keyword">if</span> (!subscriptionFound) &#123;</div><div class="line">        <span class="keyword">if</span> (logNoSubscriberMessages) &#123;</div><div class="line">            Log.d(TAG, <span class="string">"No subscribers registered for event "</span> + eventClass);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (sendNoSubscriberEvent &amp;&amp; eventClass != NoSubscriberEvent.class &amp;&amp;</div><div class="line">                eventClass != SubscriberExceptionEvent.class) &#123;</div><div class="line">            post(<span class="keyword">new</span> NoSubscriberEvent(<span class="keyword">this</span>, event));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//经过一系列操作之后 来到最终的分发方法</span></div><div class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">postToSubscription</span><span class="params">(Subscription subscription, Object event, <span class="keyword">boolean</span> isMainThread)</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span> (subscription.subscriberMethod.threadMode) &#123;</div><div class="line">            <span class="keyword">case</span> POSTING:</div><div class="line">                invokeSubscriber(subscription, event);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MAIN:</div><div class="line">                <span class="keyword">if</span> (isMainThread) &#123;</div><div class="line">                    invokeSubscriber(subscription, event);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    mainThreadPoster.enqueue(subscription, event);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MAIN_ORDERED:</div><div class="line">                <span class="keyword">if</span> (mainThreadPoster != <span class="keyword">null</span>) &#123;</div><div class="line">                    mainThreadPoster.enqueue(subscription, event);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="comment">// temporary: technically not correct as poster not decoupled from subscriber</span></div><div class="line">                    invokeSubscriber(subscription, event);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> BACKGROUND:</div><div class="line">                <span class="keyword">if</span> (isMainThread) &#123;</div><div class="line">                    backgroundPoster.enqueue(subscription, event);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    invokeSubscriber(subscription, event);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> ASYNC:</div><div class="line">                asyncPoster.enqueue(subscription, event);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Unknown thread mode: "</span> + subscription.subscriberMethod.threadMode);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//通过反射来调用事件</span></div><div class="line">      <span class="function"><span class="keyword">void</span> <span class="title">invokeSubscriber</span><span class="params">(Subscription subscription, Object event)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            subscription.subscriberMethod.method.invoke(subscription.subscriber, event);</div><div class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</div><div class="line">            handleSubscriberException(subscription, event, e.getCause());</div><div class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Unexpected exception"</span>, e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>事件发送代码比较清晰，就不细讲了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>EventBus的工作原理，主要分四个方面，注册注销，事件分发与消化。</p>
+<p>EventBus里面有两个map，一个subscriptionsByEventType的key是订阅方法（eventType：onEvent(EventType e)），value是包含key下面的订阅方法对象(Subscription)；<br>另一个map（typesBySubscriber），key是订阅者类名（subscriber），value是订阅的事件类型（eventType）。另一个map（typesBySubscriber）以订阅者类名为key,订阅者的eventTypes为value，刚好能串起两兄弟。</p>
+<ul>
+<li><em>注册</em>    注册的时候就抽出Subscriber里面的订阅方法，根据方法的优先级，是否是粘性事件等信息，包装成一个subscription，分别存到上述两个容器中。</li>
+<li><em>注销</em>    注册注销传进来的都是类对象，注销的时候根据类对象的className，去typesBySubscriber里面找对应的eventTypes（list），然后遍历list的value,以value为key,去subscriptionsByEventType<br>中迭代拿掉注销的内容。</li>
+<li><em>事件发送</em>    post的时候，先去找eventType的父类以及接口，然后把所有的事件发送出去，牵扯到线程切换一类的都由封装的一个poster处理。</li>
+<li><em>事件接收</em>    接收就很简单了，subscriber拿得到，方法也拿得到，直接去调用就好了。</li>
+</ul>
+<p><em>为什么会有两个呢，内容好像都差不多：你想啊，你发送事件的时候，发的是事件（eventType）吧，如果只有一个容器，你是不是还得遍历类名，然后遍历类中的方法去调用。两个容器刚好根据功能区分开，一个用在注册的时候，另一个用在查状态以及注销的时候，你注销不是传的类名吗，我就去typesBySubscriber里面拿到你的信息，然后根据subscriptionsByEventType，去里面剔除掉你，效率也提高了，也容易理解了。</em></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上是对EventbUs3.0的简单解析，欢迎勘误</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/r-u-kidding-me/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/15/r-u-kidding-me/" itemprop="url">r u kidding me</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T22:09:06+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我只是想写点东西，hexo却给我报错，什么npm，npde一大堆，转了一大圈也没解决好，你就不能让我省省心吗？一会我就卸载你们仨重新装！</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/122/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/15/122/" itemprop="url">122</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T21:52:45+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/123new/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/15/123new/" itemprop="url">123new</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T21:23:43+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/codeFragment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/15/codeFragment/" itemprop="url">未命名</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T20:40:40+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>** create a dialog with dim<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShareDlg</span> <span class="keyword">extends</span> <span class="title">PopupWindow</span> </span>&#123;</div><div class="line"></div><div class="line">    View popView;</div><div class="line"></div><div class="line">    Activity context;</div><div class="line"></div><div class="line">    WindowManager.LayoutParams lp;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ShareDlg</span><span class="params">(Context context, ShareConfig config)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context);</div><div class="line">        <span class="keyword">this</span>.context = (Activity) context;</div><div class="line">        lp = <span class="keyword">this</span>.context.getWindow().getAttributes();</div><div class="line">        <span class="keyword">this</span>.config = config;</div><div class="line">        initView();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setConfig</span><span class="params">(ShareConfig config)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.config = config;</div><div class="line">        rvShare.getAdapter().notifyDataSetChanged();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initView</span><span class="params">()</span> </span>&#123;</div><div class="line">        popView = LayoutInflater.from(context).inflate(R.layout.dlg_share, <span class="keyword">null</span>);</div><div class="line">        setContentView(popView);</div><div class="line">        setWidth(ViewGroup.LayoutParams.MATCH_PARENT);</div><div class="line">        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);</div><div class="line">        setFocusable(<span class="keyword">true</span>);</div><div class="line">        <span class="comment">// 实例化一个ColorDrawable颜色为半透明</span></div><div class="line">        ColorDrawable dw = <span class="keyword">new</span> ColorDrawable(<span class="number">0xb0000000</span>);</div><div class="line">        setBackgroundDrawable(dw);</div><div class="line">        setOnDismissListener(<span class="keyword">new</span> OnDismissListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDismiss</span><span class="params">()</span> </span>&#123;</div><div class="line">                lp.alpha = <span class="number">1.0f</span>;</div><div class="line">                context.getWindow().setAttributes(lp);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showAtLocation</span><span class="params">(View parent, <span class="keyword">int</span> gravity, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</div><div class="line">        lp.alpha = <span class="number">0.6f</span>;</div><div class="line">        context.getWindow().setAttributes(lp);</div><div class="line">        <span class="keyword">super</span>.showAtLocation(parent, gravity, x, y);</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/25/code_clean/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -946,702 +1532,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/24/gitignore配置/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/24/gitignore配置/" itemprop="url">android studio .gitignore配置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-24T10:54:51+08:00">
-                2017-05-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Built-application-files"><a href="#Built-application-files" class="headerlink" title="Built application files"></a>Built application files</h2><p><em>.apk  
-</em>.ap_  </p>
-<h2 id="Files-for-the-ART-Dalvik-VM"><a href="#Files-for-the-ART-Dalvik-VM" class="headerlink" title="Files for the ART/Dalvik VM"></a>Files for the ART/Dalvik VM</h2><p>*.dex  </p>
-<h2 id="Java-class-files"><a href="#Java-class-files" class="headerlink" title="Java class files"></a>Java class files</h2><p>*.class  </p>
-<h2 id="Generated-files"><a href="#Generated-files" class="headerlink" title="Generated files"></a>Generated files</h2><p>bin/<br>gen/<br>out/  </p>
-<h2 id="Gradle-files"><a href="#Gradle-files" class="headerlink" title="Gradle files"></a>Gradle files</h2><p>.gradle/<br>build/  </p>
-<h2 id="Local-configuration-file-sdk-path-etc"><a href="#Local-configuration-file-sdk-path-etc" class="headerlink" title="Local configuration file (sdk path, etc)"></a>Local configuration file (sdk path, etc)</h2><p>local.properties  </p>
-<h2 id="Proguard-folder-generated-by-Eclipse"><a href="#Proguard-folder-generated-by-Eclipse" class="headerlink" title="Proguard folder generated by Eclipse"></a>Proguard folder generated by Eclipse</h2><p>proguard/  </p>
-<h2 id="Log-Files"><a href="#Log-Files" class="headerlink" title="Log Files"></a>Log Files</h2><p>*.log  </p>
-<h2 id="Android-Studio-Navigation-editor-temp-files"><a href="#Android-Studio-Navigation-editor-temp-files" class="headerlink" title="Android Studio Navigation editor temp files"></a>Android Studio Navigation editor temp files</h2><p>.navigation/  </p>
-<h2 id="Android-Studio-captures-folder"><a href="#Android-Studio-captures-folder" class="headerlink" title="Android Studio captures folder"></a>Android Studio captures folder</h2><p>captures/  </p>
-<h2 id="Intellij"><a href="#Intellij" class="headerlink" title="Intellij"></a>Intellij</h2><p>*.iml<br>.idea/workspace.xml<br>.idea/libraries  </p>
-<h2 id="Keystore-files"><a href="#Keystore-files" class="headerlink" title="Keystore files"></a>Keystore files</h2><p>*.jks  </p>
-<h1 id="gitignore修改无效的处理"><a href="#gitignore修改无效的处理" class="headerlink" title="gitignore修改无效的处理"></a>gitignore修改无效的处理</h1><p>.gitignore只能忽略那些原来没有被track的文件，如果某些文件已经被纳入了版本管理中，修改.gitignore是无效的。那么解决方法就是先把本地缓存删除（改变成未track状态），然后再提交<br>git rm -r –cached .<br>git add .<br>git commit -m ‘update .gitignore’</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/24/sychronise理解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/24/sychronise理解/" itemprop="url">对于synchronized关键字的理解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-24T10:47:35+08:00">
-                2017-05-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="1-上代码："><a href="#1-上代码：" class="headerlink" title="1.上代码："></a>1.上代码：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaStudy</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Thread a, b;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        MyRunnable r = <span class="keyword">new</span> MyRunnable();</div><div class="line">        a = <span class="keyword">new</span> Thread(r, <span class="string">"1"</span>);</div><div class="line">        b = <span class="keyword">new</span> Thread(r, <span class="string">"2"</span>);</div><div class="line">        a.start();</div><div class="line"><span class="comment">//执行方法过程中 当前对象被锁定     </span></div><div class="line">        b.start();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"1"</span>)) &#123;</div><div class="line">                <span class="keyword">synchronized</span> (a) &#123;</div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                        Thread.sleep(<span class="number">500</span>);</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                        e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">synchronized</span> (b) &#123;</div><div class="line">                        System.out.println(<span class="string">"11111"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"2"</span>)) &#123;</div><div class="line">                <span class="keyword">synchronized</span> (b) &#123;</div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                        Thread.sleep(<span class="number">500</span>);</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                        e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">synchronized</span> (a) &#123;</div><div class="line">                        System.out.println(<span class="string">"2222"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="2-分析"><a href="#2-分析" class="headerlink" title="2.分析"></a>2.分析</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;看myrunner类。一开始定义了两个thread，然后执行方法。当线程1执行的时候先锁住a，然后让他去休眠，再去锁住b；同时线程2做线程1相反的事情。然而</p>
-<p> ==synchronized的效果是，执行方法过程中，当前对象被锁定== </p>
-<p>所以在线程1休眠完了之后要去锁住线程2的时候，发现2已经被另一个线程锁定了；另一面线程2也遇到了相同的情况，两边都不肯放手，就这样死耗着，这就造成了死锁。</p>
-<h4 id="3-解决方案"><a href="#3-解决方案" class="headerlink" title="3.解决方案"></a>3.解决方案</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;为了避免这种情况的发生，我们在加锁的时候，尽量选在粒度较大的位置，比如说直接放在run（）方法上，==public synchronised void run()== 这样就可以了，当然如果场景比较特殊则再议。</p>
-<h4 id="4-用途"><a href="#4-用途" class="headerlink" title="4.用途"></a>4.用途</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;据说一般在写系统级应用的情况下才接触的比较多，比如说写一个数据库的时候，要控制只读，只写等。</p>
-<h4 id="5-拓展"><a href="#5-拓展" class="headerlink" title="5.拓展"></a>5.拓展</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;比较形象的理解是 五个哲学家吃饭的故事</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/24/php环境/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/24/php环境/" itemprop="url">php开发环境搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-24T10:43:11+08:00">
-                2017-05-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>废话不多说，简单易懂的教程来了。</p>
-<p>1.先下载XAMPP,一路next。<br>2.下载phpstorm，激活码去找lanyu的那个，好人一生平安！ <a href="http://idea.lanyus.com/。" target="_blank" rel="external">http://idea.lanyus.com/。</a><br>3.新建php项目，起名字叫index.php，内容如下：</p>
-<p><html></html></p>
-<p><head><br>    <title>PHP 测试</title><br></head></p>
-<p><body><br>&lt;?php echo ‘<p>Hello World</p>‘; ?&gt;<br></body><br><br>4.运行的时候会发现报错502，然后编译器右下角，如图。点击超链接。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1350507-de3d43929e6505f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
-<p>这个时候你在红框位置，定位到xmapp里面 bin文件下的php文件的位置，顺便记下他的版本</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1350507-1eb14a868da09798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"><br>我的是/Applications/XAMPP/xamppfiles/bin/php-7.0.2。<br>顺路把language level修改成7（这个一定要改！否则就是系统的5版本，网上问题大都出在这里）</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1350507-d7f580d227607200.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
-<p>5.apply -ok 运行。（over）</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/15/Java为例理解接口/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/15/Java为例理解接口/" itemprop="url">Java为例理解接口</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-15T17:27:12+08:00">
-                2017-05-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>这里有个很通俗的理解:<br>    你要一个充气娃娃，这个充气娃娃有一个makeLove方法，你买这个娃娃就是冲着makeLove去的，你不关心它是哪国的娃娃，长得怎样。那么代码就体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">interface Chongqiwawa&#123;</div><div class="line">public void makeLove(String name);</div><div class="line">&#125;</div><div class="line"></div><div class="line">class Person&#123;</div><div class="line"> Chongqiwawa wawa;</div><div class="line"> public void setWawa(Chongqiwawa wawa)&#123;</div><div class="line">   this.wawa = wawa;</div><div class="line"> &#125;</div><div class="line"> private String name;</div><div class="line"> public void makeLove()&#123;</div><div class="line">  //调用wawa的makeLove方法</div><div class="line">  wawa.makeLove(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>现在，你想和wawa那个，就可以这样用了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>报错了吧？你怎么能跟虚的wawa那个呢？所以必须要买一个wawa.好吧，去逛成人店选购一个wawa.这里有日本娃娃，美国娃娃，先看看美国娃娃功能怎么样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class USAWawa implements Chongqiwawa&#123;</div><div class="line">   public void makeLove(String name)&#123;</div><div class="line">     System.output.println(name + &quot; come on! a,a, a...&quot;); </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>好吧，你已经流口水了，一口价成交，然后带回家，迫不及待实践一下，代码体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  Chongqiwawa wawa = new USAWawa();</div><div class="line">  you.setWawa(wawa);</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>这时候你已经可以和娃娃水乳交融了。不久，你发觉厌倦了美国娃娃，想试下日本娃娃，再次来到成人超市,日本娃娃makeLove功能实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class JapanWawa implements Chongqiwawa&#123;</div><div class="line">   public void makeLove(String name)&#123;</div><div class="line">     System.output.println(name + &quot; yemede! a,a, a...ganbade...&quot;); </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>OK,你直接丢下一堆钞票一句不用找就抱回家了，马上进入主题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  //获得实际的wawa</div><div class="line">  Chongqiwawa wawa = new JapanWawa();</div><div class="line">  you.setWawa(wawa);</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>看见了吗，只需改动一行代码，你就实现了娃娃的切换，得到不同的makeLove感受，其他代码都不用改。<br>这就是接口！</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/15/teach/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/15/teach/" itemprop="url">给女朋友写的python安装教程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-15T15:33:28+08:00">
-                2017-05-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p> 本教程分为两步，第一步安装homebrew（此后可以用来安装mac所需的大部分安装包 只要一句<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install xxx</div></pre></td></tr></table></figure></p>
-<p> 就可以）；第二部是安装python3。</p>
-<p>##1.安装homebrew</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</div></pre></td></tr></table></figure>
-<p> 把他放进命令行里面，运行，最终会安装在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/usr/local</div></pre></td></tr></table></figure></p>
-<p>文件夹中。完成后，在命令行输入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew -v</div></pre></td></tr></table></figure></p>
-<p>可以查看信息，也可验证是否安装成功， </p>
-<p>##2.安装python3<br> 基于第一步的安装，命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install python3</div></pre></td></tr></table></figure></p>
-<p> 即可。完成后在命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python3</div></pre></td></tr></table></figure></p>
-<p> 即可验证是否安装成功。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1686,7 +1581,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1708,7 +1603,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
