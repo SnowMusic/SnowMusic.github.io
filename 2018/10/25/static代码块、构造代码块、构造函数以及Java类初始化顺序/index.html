@@ -93,18 +93,18 @@
 
 
 
-<meta name="description" content="static代码块、构造代码块、构造函数以及Java类初始化顺序顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;">
+<meta name="description" content="顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;        System.out.println(&quot;构造函数&quot;);">
 <meta name="keywords" content="java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="static代码块、构造代码块、构造函数以及Java类初始化顺序">
 <meta property="og:url" content="http://yoursite.com/2018/10/25/static代码块、构造代码块、构造函数以及Java类初始化顺序/index.html">
 <meta property="og:site_name" content="朱瑞雪的写字板">
-<meta property="og:description" content="static代码块、构造代码块、构造函数以及Java类初始化顺序顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;">
+<meta property="og:description" content="顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;        System.out.println(&quot;构造函数&quot;);">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-25T09:59:52.497Z">
+<meta property="og:updated_time" content="2018-10-25T10:01:51.146Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="static代码块、构造代码块、构造函数以及Java类初始化顺序">
-<meta name="twitter:description" content="static代码块、构造代码块、构造函数以及Java类初始化顺序顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;">
+<meta name="twitter:description" content="顺序：父类静态块–&amp;gt;子类静态块–&amp;gt; main方法–&amp;gt;父类构造代码块 –&amp;gt;父类构造函数–&amp;gt;子类构造代码块–&amp;gt;子类构造函数，同一级别代码块按顺序执行。 这几个名词体现在代码中，如下： 1234567891011class Study &amp;#123;    public Study()&amp;#123;        System.out.println(&quot;构造函数&quot;);">
 
 
 
@@ -353,7 +353,7 @@
       
 
       
-        <h1 id="static代码块、构造代码块、构造函数以及Java类初始化顺序"><a href="#static代码块、构造代码块、构造函数以及Java类初始化顺序" class="headerlink" title="static代码块、构造代码块、构造函数以及Java类初始化顺序"></a>static代码块、构造代码块、构造函数以及Java类初始化顺序</h1><p><strong>顺序：<br>父类静态块–&gt;子类静态块–&gt; main方法–&gt;父类构造代码块 –&gt;父类构造函数–&gt;子类构造代码块–&gt;子类构造函数，同一级别代码块按顺序执行。</strong></p>
+        <p><strong>顺序：<br>父类静态块–&gt;子类静态块–&gt; main方法–&gt;父类构造代码块 –&gt;父类构造函数–&gt;子类构造代码块–&gt;子类构造函数，同一级别代码块按顺序执行。</strong></p>
 <p>这几个名词体现在代码中，如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Study</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Study</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"构造函数"</span>);    </span><br><span class="line">    &#125;</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">"构造代码块"</span>);    </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"静态代码块"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>静态代码块和代码块的区别在于：<br>静态代码块只执行一次，代码块每次创建该对象的时候都会执行一次。<br>执行顺序：<br>静态变量，main方法，构造块，构造函数。</p>
@@ -582,7 +582,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#static代码块、构造代码块、构造函数以及Java类初始化顺序"><span class="nav-number">1.</span> <span class="nav-text">static代码块、构造代码块、构造函数以及Java类初始化顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#普通情况"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">普通情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继承情况"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">继承情况</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#题目"><span class="nav-number">1.0.1.</span> <span class="nav-text">题目</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#普通情况"><span class="nav-number">1.</span> <span class="nav-text">普通情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继承情况"><span class="nav-number">2.</span> <span class="nav-text">继承情况</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#题目"><span class="nav-number"></span> <span class="nav-text">题目</span></a></div>
             
 
           </div>
