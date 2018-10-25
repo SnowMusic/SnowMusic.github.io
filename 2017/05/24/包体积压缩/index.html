@@ -100,7 +100,8 @@
 <meta property="og:url" content="http://yoursite.com/2017/05/24/包体积压缩/index.html">
 <meta property="og:site_name" content="朱瑞雪的写字板">
 <meta property="og:description" content="图片压缩   目前比较盛传的方式就是把图片转换成webp（读音weppy）格式，安卓4.0以下需要引用一个jar包，4.0以上是支持这种格式。然后再把图片经过tinyPNG转换（我一个做设计的朋友给我推荐pngyu），最后再把生成的图片塞入drawable文件夹。很久之前就有一个网站，这是他的介绍 TinyPNG—一个压缩PNG的神站 我跟我这边的设计要了一张2M的图做测试，压缩之后只有300kb">
-<meta property="og:updated_time" content="2017-06-14T09:06:42.000Z">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-06T13:59:04.412Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="android包体积压缩">
 <meta name="twitter:description" content="图片压缩   目前比较盛传的方式就是把图片转换成webp（读音weppy）格式，安卓4.0以下需要引用一个jar包，4.0以上是支持这种格式。然后再把图片经过tinyPNG转换（我一个做设计的朋友给我推荐pngyu），最后再把生成的图片塞入drawable文件夹。很久之前就有一个网站，这是他的介绍 TinyPNG—一个压缩PNG的神站 我跟我这边的设计要了一张2M的图做测试，压缩之后只有300kb">
@@ -352,10 +353,10 @@
       
 
       
-        <h2 id="图片压缩"><a href="#图片压缩" class="headerlink" title="图片压缩"></a>图片压缩</h2><p>   目前比较盛传的方式就是把图片转换成webp（读音weppy）格式，安卓4.0以下需要引用一个jar包，4.0以上是支持这种格式。然后再把图片经过tinyPNG转换（我一个做设计的朋友给我推荐pngyu），最后再把生成的图片塞入drawable文件夹。很久之前就有一个网站，这是他的介绍 <a href="http://app.hustonline.net/article/detail/51" target="_blank" rel="external">TinyPNG—一个压缩PNG的神站</a> 我跟我这边的设计要了一张2M的图做测试，压缩之后只有300kb，凭借我这双眼伸缩瞧了瞧也没看出啥太大的区别，可能美中不足的是tinyPNG有压缩数量要求。Ps:这都是设计师或者美术工程师的事情，我这权当发牢骚。</p>
+        <h2 id="图片压缩"><a href="#图片压缩" class="headerlink" title="图片压缩"></a>图片压缩</h2><p>   目前比较盛传的方式就是把图片转换成webp（读音weppy）格式，安卓4.0以下需要引用一个jar包，4.0以上是支持这种格式。然后再把图片经过tinyPNG转换（我一个做设计的朋友给我推荐pngyu），最后再把生成的图片塞入drawable文件夹。很久之前就有一个网站，这是他的介绍 <a href="http://app.hustonline.net/article/detail/51" target="_blank" rel="noopener">TinyPNG—一个压缩PNG的神站</a> 我跟我这边的设计要了一张2M的图做测试，压缩之后只有300kb，凭借我这双眼伸缩瞧了瞧也没看出啥太大的区别，可能美中不足的是tinyPNG有压缩数量要求。Ps:这都是设计师或者美术工程师的事情，我这权当发牢骚。</p>
 <h2 id="无用资源的删除"><a href="#无用资源的删除" class="headerlink" title="无用资源的删除"></a>无用资源的删除</h2><p><em>这个有以下几方面</em></p>
 <p><strong>无用的资源文件</strong></p>
-<p>a.用eclipse的话，可以在lint窗口看到。<br>b.android studio：<code>Analyze菜单</code>中选择<code>Inspect Code…</code>。当Android Studio完成了对项目的检测之后，它会在窗口底部显示出分析结果。除了Android Lint之外，Android Studio还提供一系列其它检查功能。只需双击某个已经发现的问题，系统就会帮助大家定位到对应文件中存在问题的位置 <br>以下代码是检查过期代码。在app级别的build.gradle中添加<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">allprojects &#123;</div><div class="line">    gradle.projectsEvaluated &#123;</div><div class="line">        tasks.withType(JavaCompile) &#123;</div><div class="line">            options.compilerArgs &lt;&lt; &quot;-Xlint:unchecked&quot; &lt;&lt; &quot;-Xlint:deprecation&quot;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>a.用eclipse的话，可以在lint窗口看到。<br>b.android studio：<figure class="highlight plain"><figcaption><span>Code…```。当Android Studio完成了对项目的检测之后，它会在窗口底部显示出分析结果。除了Android Lint之外，Android Studio还提供一系列其它检查功能。只需双击某个已经发现的问题，系统就会帮助大家定位到对应文件中存在问题的位置,以下代码是检查过期代码。在app级别的build.gradle中添加</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line">allprojects &#123;</span><br><span class="line">    gradle.projectsEvaluated &#123;</span><br><span class="line">        tasks.withType(JavaCompile) &#123;</span><br><span class="line">            options.compilerArgs &lt;&lt; &quot;-Xlint:unchecked&quot; &lt;&lt; &quot;-Xlint:deprecation&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>然后就根据提示去删除。删除的时候注意那些第三方jar包等文件别误删了，例如友盟。</p>
 <p><strong>精简第三方依赖</strong></p>
 <p>  如果你只用了依赖中的某个类，其他的类请删掉，当然这都是应该在引入这个类之前做的事情，所以一开始依赖的时候别偷懒，你怎么可能用他的整个包。</p>
@@ -487,7 +488,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

@@ -99,6 +99,7 @@
 <meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="朱瑞雪的写字板">
 <meta property="og:description" content="对于安卓、python等技术以及生活的感悟">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="朱瑞雪的写字板">
 <meta name="twitter:description" content="对于安卓、python等技术以及生活的感悟">
@@ -256,6 +257,141 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/24/textview点击事件截获/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/24/textview点击事件截获/" itemprop="url">TextView设置clickspan，导致点击事件截获</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-24T11:13:35+08:00">
+                2017-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>直接上代码 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"> public class TextViewWithClick extends TextView &#123;</span><br><span class="line"></span><br><span class="line">    public TextViewWithClick(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public boolean onTouchEvent(MotionEvent event) &#123;</span><br><span class="line">        TextView widget = this;</span><br><span class="line">        Object text = widget.getText();</span><br><span class="line">        if (text instanceof Spanned) &#123;</span><br><span class="line">            Spannable buffer = (Spannable) text;</span><br><span class="line"></span><br><span class="line">            int action = event.getAction();</span><br><span class="line"></span><br><span class="line">            if (action == MotionEvent.ACTION_UP</span><br><span class="line">                    || action == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">                int x = (int) event.getX();</span><br><span class="line">                int y = (int) event.getY();</span><br><span class="line"></span><br><span class="line">                x -= widget.getTotalPaddingLeft();</span><br><span class="line">                y -= widget.getTotalPaddingTop();</span><br><span class="line"></span><br><span class="line">                x += widget.getScrollX();</span><br><span class="line">                y += widget.getScrollY();</span><br><span class="line"></span><br><span class="line">                Layout layout = widget.getLayout();</span><br><span class="line">                int line = layout.getLineForVertical(y);</span><br><span class="line">                int off = layout.getOffsetForHorizontal(line, x);</span><br><span class="line"></span><br><span class="line">                ClickableSpan[] link = buffer.getSpans(off, off,</span><br><span class="line">                        ClickableSpan.class);</span><br><span class="line"></span><br><span class="line">                if (link.length != 0) &#123;</span><br><span class="line">                    if (action == MotionEvent.ACTION_UP) &#123;</span><br><span class="line">                        link[0].onClick(widget);</span><br><span class="line">                    &#125; else if (action == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">                        Selection.setSelection(buffer,</span><br><span class="line">                                buffer.getSpanStart(link[0]),</span><br><span class="line">                                buffer.getSpanEnd(link[0]));</span><br><span class="line">                    &#125;</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
     
       
 
@@ -503,7 +639,7 @@
       
         
           
-            <h4 id="1-上代码："><a href="#1-上代码：" class="headerlink" title="1.上代码："></a>1.上代码：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaStudy</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Thread a, b;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        MyRunnable r = <span class="keyword">new</span> MyRunnable();</div><div class="line">        a = <span class="keyword">new</span> Thread(r, <span class="string">"1"</span>);</div><div class="line">        b = <span class="keyword">new</span> Thread(r, <span class="string">"2"</span>);</div><div class="line">        a.start();</div><div class="line"><span class="comment">//执行方法过程中 当前对象被锁定     </span></div><div class="line">        b.start();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"1"</span>)) &#123;</div><div class="line">                <span class="keyword">synchronized</span> (a) &#123;</div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                        Thread.sleep(<span class="number">500</span>);</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                        e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">synchronized</span> (b) &#123;</div><div class="line">                        System.out.println(<span class="string">"11111"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"2"</span>)) &#123;</div><div class="line">                <span class="keyword">synchronized</span> (b) &#123;</div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                        Thread.sleep(<span class="number">500</span>);</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                        e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">synchronized</span> (a) &#123;</div><div class="line">                        System.out.println(<span class="string">"2222"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+            <h4 id="1-上代码："><a href="#1-上代码：" class="headerlink" title="1.上代码："></a>1.上代码：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaStudy</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Thread a, b;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyRunnable r = <span class="keyword">new</span> MyRunnable();</span><br><span class="line">        a = <span class="keyword">new</span> Thread(r, <span class="string">"1"</span>);</span><br><span class="line">        b = <span class="keyword">new</span> Thread(r, <span class="string">"2"</span>);</span><br><span class="line">        a.start();</span><br><span class="line"><span class="comment">//执行方法过程中 当前对象被锁定     </span></span><br><span class="line">        b.start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"1"</span>)) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (a) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">synchronized</span> (b) &#123;</span><br><span class="line">                        System.out.println(<span class="string">"11111"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (Thread.currentThread().getName().equals(<span class="string">"2"</span>)) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (b) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">synchronized</span> (a) &#123;</span><br><span class="line">                        System.out.println(<span class="string">"2222"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="2-分析"><a href="#2-分析" class="headerlink" title="2.分析"></a>2.分析</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;看myrunner类。一开始定义了两个thread，然后执行方法。当线程1执行的时候先锁住a，然后让他去休眠，再去锁住b；同时线程2做线程1相反的事情。然而</p>
 <p> ==synchronized的效果是，执行方法过程中，当前对象被锁定== </p>
 <p>所以在线程1休眠完了之后要去锁住线程2的时候，发现2已经被另一个线程锁定了；另一面线程2也遇到了相同的情况，两边都不肯放手，就这样死耗着，这就造成了死锁。</p>
@@ -622,7 +758,7 @@
         
           
             <p>废话不多说，简单易懂的教程来了。</p>
-<p>1.先下载XAMPP,一路next。<br>2.下载phpstorm，激活码去找lanyu的那个，好人一生平安！ <a href="http://idea.lanyus.com/。" target="_blank" rel="external">http://idea.lanyus.com/。</a><br>3.新建php项目，起名字叫index.php，内容如下：</p>
+<p>1.先下载XAMPP,一路next。<br>2.下载phpstorm，激活码去找lanyu的那个，好人一生平安！ <a href="http://idea.lanyus.com/。" target="_blank" rel="noopener">http://idea.lanyus.com/。</a><br>3.新建php项目，起名字叫index.php，内容如下：</p>
 <p><html></html></p>
 <p><head><br>    <title>PHP 测试</title><br></head></p>
 <p><body><br>&lt;?php echo ‘<p>Hello World</p>‘; ?&gt;<br></body><br><br>4.运行的时候会发现报错502，然后编译器右下角，如图。点击超链接。</p>
@@ -764,12 +900,12 @@
       
         
           
-            <p>这里有个很通俗的理解:<br>    你要一个充气娃娃，这个充气娃娃有一个makeLove方法，你买这个娃娃就是冲着makeLove去的，你不关心它是哪国的娃娃，长得怎样。那么代码就体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">interface Chongqiwawa&#123;</div><div class="line">public void makeLove(String name);</div><div class="line">&#125;</div><div class="line"></div><div class="line">class Person&#123;</div><div class="line"> Chongqiwawa wawa;</div><div class="line"> public void setWawa(Chongqiwawa wawa)&#123;</div><div class="line">   this.wawa = wawa;</div><div class="line"> &#125;</div><div class="line"> private String name;</div><div class="line"> public void makeLove()&#123;</div><div class="line">  //调用wawa的makeLove方法</div><div class="line">  wawa.makeLove(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>现在，你想和wawa那个，就可以这样用了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>报错了吧？你怎么能跟虚的wawa那个呢？所以必须要买一个wawa.好吧，去逛成人店选购一个wawa.这里有日本娃娃，美国娃娃，先看看美国娃娃功能怎么样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class USAWawa implements Chongqiwawa&#123;</div><div class="line">   public void makeLove(String name)&#123;</div><div class="line">     System.output.println(name + &quot; come on! a,a, a...&quot;); </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>好吧，你已经流口水了，一口价成交，然后带回家，迫不及待实践一下，代码体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  Chongqiwawa wawa = new USAWawa();</div><div class="line">  you.setWawa(wawa);</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>这时候你已经可以和娃娃水乳交融了。不久，你发觉厌倦了美国娃娃，想试下日本娃娃，再次来到成人超市,日本娃娃makeLove功能实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">class JapanWawa implements Chongqiwawa&#123;</div><div class="line">   public void makeLove(String name)&#123;</div><div class="line">     System.output.println(name + &quot; yemede! a,a, a...ganbade...&quot;); </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>OK,你直接丢下一堆钞票一句不用找就抱回家了，马上进入主题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> void main()&#123;</div><div class="line">  Person you = new Person();</div><div class="line">  //获得实际的wawa</div><div class="line">  Chongqiwawa wawa = new JapanWawa();</div><div class="line">  you.setWawa(wawa);</div><div class="line">  you.makeLove();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+            <p>这里有个很通俗的理解:<br>    你要一个充气娃娃，这个充气娃娃有一个makeLove方法，你买这个娃娃就是冲着makeLove去的，你不关心它是哪国的娃娃，长得怎样。那么代码就体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">interface Chongqiwawa&#123;</span><br><span class="line">public void makeLove(String name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Person&#123;</span><br><span class="line"> Chongqiwawa wawa;</span><br><span class="line"> public void setWawa(Chongqiwawa wawa)&#123;</span><br><span class="line">   this.wawa = wawa;</span><br><span class="line"> &#125;</span><br><span class="line"> private String name;</span><br><span class="line"> public void makeLove()&#123;</span><br><span class="line">  //调用wawa的makeLove方法</span><br><span class="line">  wawa.makeLove(name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>现在，你想和wawa那个，就可以这样用了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void main()&#123;</span><br><span class="line">  Person you = new Person();</span><br><span class="line">  you.makeLove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>报错了吧？你怎么能跟虚的wawa那个呢？所以必须要买一个wawa.好吧，去逛成人店选购一个wawa.这里有日本娃娃，美国娃娃，先看看美国娃娃功能怎么样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class USAWawa implements Chongqiwawa&#123;</span><br><span class="line">   public void makeLove(String name)&#123;</span><br><span class="line">     System.output.println(name + &quot; come on! a,a, a...&quot;); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>好吧，你已经流口水了，一口价成交，然后带回家，迫不及待实践一下，代码体现为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> void main()&#123;</span><br><span class="line">  Person you = new Person();</span><br><span class="line">  Chongqiwawa wawa = new USAWawa();</span><br><span class="line">  you.setWawa(wawa);</span><br><span class="line">  you.makeLove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这时候你已经可以和娃娃水乳交融了。不久，你发觉厌倦了美国娃娃，想试下日本娃娃，再次来到成人超市,日本娃娃makeLove功能实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class JapanWawa implements Chongqiwawa&#123;</span><br><span class="line">   public void makeLove(String name)&#123;</span><br><span class="line">     System.output.println(name + &quot; yemede! a,a, a...ganbade...&quot;); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>OK,你直接丢下一堆钞票一句不用找就抱回家了，马上进入主题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> void main()&#123;</span><br><span class="line">  Person you = new Person();</span><br><span class="line">  //获得实际的wawa</span><br><span class="line">  Chongqiwawa wawa = new JapanWawa();</span><br><span class="line">  you.setWawa(wawa);</span><br><span class="line">  you.makeLove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>看见了吗，只需改动一行代码，你就实现了娃娃的切换，得到不同的makeLove感受，其他代码都不用改。<br>这就是接口！</p>
 
           
@@ -904,15 +1040,15 @@
       
         
           
-            <p> 本教程分为两步，第一步安装homebrew（此后可以用来安装mac所需的大部分安装包 只要一句<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install xxx</div></pre></td></tr></table></figure></p>
+            <p> 本教程分为两步，第一步安装homebrew（此后可以用来安装mac所需的大部分安装包 只要一句<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install xxx</span><br></pre></td></tr></table></figure></p>
 <p> 就可以）；第二部是安装python3。</p>
 <p>##1.安装homebrew</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</div></pre></td></tr></table></figure>
-<p> 把他放进命令行里面，运行，最终会安装在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/usr/local</div></pre></td></tr></table></figure></p>
-<p>文件夹中。完成后，在命令行输入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew -v</div></pre></td></tr></table></figure></p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</span><br></pre></td></tr></table></figure>
+<p> 把他放进命令行里面，运行，最终会安装在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local</span><br></pre></td></tr></table></figure></p>
+<p>文件夹中。完成后，在命令行输入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew -v</span><br></pre></td></tr></table></figure></p>
 <p>可以查看信息，也可验证是否安装成功， </p>
-<p>##2.安装python3<br> 基于第一步的安装，命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install python3</div></pre></td></tr></table></figure></p>
-<p> 即可。完成后在命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">python3</div></pre></td></tr></table></figure></p>
+<p>##2.安装python3<br> 基于第一步的安装，命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install python3</span><br></pre></td></tr></table></figure></p>
+<p> 即可。完成后在命令行输入<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3</span><br></pre></td></tr></table></figure></p>
 <p> 即可验证是否安装成功。</p>
 
           
@@ -1047,7 +1183,7 @@
       
         
           
-            <p>当项目需要统一标题栏的时候，官方的答案是每个布局里面include一个布局，想来是多么麻烦，那哪能叫程序员的做法。<br>自己封装的baseactivity的关键代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initActionBar</span><span class="params">()</span> </span>&#123;</div><div class="line">       actionBar = getSupportActionBar();</div><div class="line">       ActionBar.LayoutParams params = <span class="keyword">new</span> ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);</div><div class="line">       View view = LayoutInflater.from(<span class="keyword">this</span>).inflate(R.layout.aty_news_bar, <span class="keyword">null</span>);</div><div class="line">       actionBar.setCustomView(view, params);</div><div class="line">       actionBar.setDisplayShowCustomEnabled(<span class="keyword">true</span>);</div><div class="line">       actionBar.setDisplayShowTitleEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setDisplayHomeAsUpEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setDisplayUseLogoEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setHomeButtonEnabled(<span class="keyword">false</span>);</div><div class="line">       actionBar.setElevation(<span class="number">0</span>);</div><div class="line">       Toolbar parent = (Toolbar) view.getParent();</div><div class="line">       parent.setContentInsetsAbsolute(<span class="number">0</span>, <span class="number">0</span>);</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+            <p>当项目需要统一标题栏的时候，官方的答案是每个布局里面include一个布局，想来是多么麻烦，那哪能叫程序员的做法。<br>自己封装的baseactivity的关键代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initActionBar</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       actionBar = getSupportActionBar();</span><br><span class="line">       ActionBar.LayoutParams params = <span class="keyword">new</span> ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">       View view = LayoutInflater.from(<span class="keyword">this</span>).inflate(R.layout.aty_news_bar, <span class="keyword">null</span>);</span><br><span class="line">       actionBar.setCustomView(view, params);</span><br><span class="line">       actionBar.setDisplayShowCustomEnabled(<span class="keyword">true</span>);</span><br><span class="line">       actionBar.setDisplayShowTitleEnabled(<span class="keyword">false</span>);</span><br><span class="line">       actionBar.setDisplayHomeAsUpEnabled(<span class="keyword">false</span>);</span><br><span class="line">       actionBar.setDisplayUseLogoEnabled(<span class="keyword">false</span>);</span><br><span class="line">       actionBar.setHomeButtonEnabled(<span class="keyword">false</span>);</span><br><span class="line">       actionBar.setElevation(<span class="number">0</span>);</span><br><span class="line">       Toolbar parent = (Toolbar) view.getParent();</span><br><span class="line">       parent.setContentInsetsAbsolute(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
 <p>放在baseactivity里面，不用setcontentview</p>
 
           
@@ -1200,11 +1336,11 @@
 <li>友盟统计</li>
 </ol>
 </li>
-<li><ol>
+<li><ol start="2">
 <li>友盟升级</li>
 </ol>
 </li>
-<li><ol>
+<li><ol start="3">
 <li>集成测试</li>
 </ol>
 </li>
@@ -1505,174 +1641,12 @@
       
         
           
-            <p>从官网上下载安装之后，JDK默认安装路径：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/Library/Java/JavaVirtualMachines/jdk1.8.0_72.jdk</div></pre></td></tr></table></figure></p>
-<p>（版本号以实际为准）<br>打开terminal，输入：<figure class="highlight vim"><figcaption><span>.bash_profile```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">（如果没有则新建，输入：```touch .bash_profile）</div></pre></td></tr></table></figure></p>
+            <p>从官网上下载安装之后，JDK默认安装路径：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/Library/Java/JavaVirtualMachines/jdk1.8.0_72.jdk</span><br></pre></td></tr></table></figure></p>
+<p>（版本号以实际为准）<br>打开terminal，输入：<figure class="highlight vim"><figcaption><span>.bash_profile```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">（如果没有则新建，输入：```touch .bash_profile）</span><br></pre></td></tr></table></figure></p>
 <p>在弹出的文档中输入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_72.jdk/Contents/Home</div><div class="line">export PATH=$PATH:$JAVA_HOME</div></pre></td></tr></table></figure>
-<p>点击<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```source .bash_profile</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_72.jdk/Contents/Home</span><br><span class="line">export PATH=$PATH:$JAVA_HOME</span><br></pre></td></tr></table></figure>
+<p>点击<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```source .bash_profile</span><br></pre></td></tr></table></figure></p>
 <p>完成。<br>查看当前默认Java版本，重启terminal，输入：<br><code>java -version</code></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/22/hashmap/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/22/hashmap/" itemprop="url">HashMap理解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-22T11:10:30+08:00">
-                2016-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>第一次实习面试的时候,小房间里面试官拿着一本本子,上来就告诉我自己是做Java的,然后问了我很多Java基础,当从HashMap如何使用到怎么实现的时候,我就两眼懵逼了,当问到安卓的Context是干什么的时候,我的内心直接被击中了。虽然写了好几个月的程序,却只停留在会用的基础上,而没去知其所以然,太脸红了。这次面试打开了我对程序语言执着研究的大门,还是菜鸟的我感觉到能问出这种问题,还如此谦虚的人真是厉害,怀抱着大神带我飞的心情,几乎热泪盈眶的我欣然带着这份offer,准备跟着大神大干一场。结果当我入职的事后才知道,大神在我来的前几天就去支付宝了…言归正传,我就整理八经研究一下这个HashMap。</p>
-<h2 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h2><p>HashMap是程序编写过程中,再平常不过的一个集合类,通常通过他的<code>put(key,value)</code>和<code>get(key)</code>方法来存取数据,数据存取的类型非常多样,而且允许<code>key</code>和<code>value</code>为<code>null</code>。直接上源码：<br><em>HashMap</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">public class HashMap&lt;K,V&gt; extends AbstractMap&lt;K,V&gt; implements Map&lt;K,V&gt;, </div><div class="line">Cloneable, Serializable &#123; ... &#125;</div></pre></td></tr></table></figure></p>
-<p><em>AbstractMap</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public abstract class AbstractMap&lt;K,V&gt; implements Map&lt;K,V&gt; &#123; ... &#125;</div></pre></td></tr></table></figure></p>
-<p>HashMap继承于AbstractMap,Map定义了键值对的映射规则。AbstractMap内部也也实现了Map接口,<br>这是为什么嘞？难道是为了强调吗,或者是反射getInterfaces的时候能够直接获取到Map,这里不是和明白,后续再补吧。</p>
-<h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><p>HashMap的构造方法四个<br><strong>Ps: 全局变量中已经指定默认的加载因子0.75,初始容量16</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor)</div><div class="line">&lt;!--构造一个带指定初始容量和默认加载因子(0.75)的空HashMap--&gt;</div><div class="line">public HashMap(int initialCapacity) &#123;</div><div class="line">	this(initialCapacity, DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div><div class="line"></div><div class="line">&lt;!--构造一个具有默认初始容量(16)和默认加载因子(0.75)的空HashMap--&gt;</div><div class="line">public HashMap() &#123;</div><div class="line">	this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div><div class="line"></div><div class="line">public HashMap(Map&lt;? extends K, ? extends V&gt; m)&#123;</div><div class="line">	this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,</div><div class="line">		DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>殊途同归,最终都指向了第一个构造方法。嗯,我们来看一下。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor)</div></pre></td></tr></table></figure></p>
-<p>这里有初始容量,加载因子两个参数,影响HashMap性能。</p>
-<p><em>初始容量</em>  是哈希表在创建时的容量。</p>
-<p><em>加载因子</em>  是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时,通过调用rehash 方法将容量翻倍。</p>
-<p>以下内容来自百度对于他们的理解：<br>比如说向水桶中装水,此时HashMap就是一个桶, 这个桶的容量就是加载容量,而加载因子就是你要控制向这个桶中倒的水不超过水桶容量的比例,比如加载因子是0.75 ,那么在装水的时候这个桶最多能装到3/4 处,超过这个比例时,桶会自动扩容。因此,这个桶<br>最多能装水 = 桶的容量 x 加载因子。<br>如果桶的容量是40,加载因子是0.75<br>那么你的桶最多能装40 x 0.75 = 30的水,如果你装了30的水还想继续装水,那么就该用大一点的桶,调用rehash就是负责增加桶的容量的方法。</p>
-<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>Java中最常用的两种结构是数组和模拟指针(引用),几乎所有的数据结构都可以利用这两种来组合实现,HashMap也是如此。实际上HashMap是一个“链表散列”,网上扒取了一张结构图：</p>
-<p><img src="http://og3ie8mqp.bkt.clouddn.com/hashmap%E5%8E%9F%E7%90%86%E5%9B%BE.jpg" alt=""></p>
-<p>HashMap底层还是数组,只是数组的每一项都是一条链,initialCapacity 代表数组长度。</p>
-<p>来吧,看看构造函数的内容:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public HashMap(int initialCapacity, float loadFactor) &#123;</div><div class="line">&lt;!--   初始容量必须大于或者等于0  --&gt;</div><div class="line">   if (initialCapacity &lt; 0)</div><div class="line">       throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; +</div><div class="line">               initialCapacity);</div><div class="line">   &lt;!--  初始容量不能 &gt; 最大容量值,HashMap的最大容量值为2^30  --&gt;</div><div class="line">   if (initialCapacity &gt; MAXIMUM_CAPACITY) &#123;</div><div class="line">       initialCapacity = MAXIMUM_CAPACITY;</div><div class="line">   &#125; else if (initialCapacity &lt; DEFAULT_INITIAL_CAPACITY) &#123;</div><div class="line">       initialCapacity = DEFAULT_INITIAL_CAPACITY;</div><div class="line">   &#125;</div><div class="line">		&lt;!--   加载因子不能小于0   --&gt;</div><div class="line">   if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))</div><div class="line">       throw new IllegalArgumentException(&quot;Illegal load factor: &quot; +</div><div class="line">               loadFactor);</div><div class="line">   threshold = initialCapacity;</div><div class="line">   &lt;!--  这个方法留给子类重写,里面什么都没有  --&gt;</div><div class="line">   init();    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><p>数据存储用的是<code>put(k,v)</code>的方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">        // 如果表是空的 就新建一个HashTable</div><div class="line">        if (table == EMPTY_TABLE) &#123;</div><div class="line">            inflateTable(threshold);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // key可以是null,调用putForNullKey方法,保存null与table第一个位置中</div><div class="line">        if (key == null)</div><div class="line">            return putForNullKey(value);</div><div class="line">        // 获取key的哈希</div><div class="line">        int hash = sun.misc.Hashing.singleWordWangJenkinsHash(key);</div><div class="line"></div><div class="line">        // 计算key hash 值在 table 数组中的位置</div><div class="line">        int i = indexFor(hash, table.length);</div><div class="line"></div><div class="line">        // 迭代找出key的位置,为了得到 value</div><div class="line">        for (HashMapEntry&lt;K, V&gt; e = table[i]; e != null; e = e.next) &#123;</div><div class="line">            Object k;</div><div class="line">            // 如果key重复了 返回老的value （所以put的结果是个object）</div><div class="line">            if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</div><div class="line">                V oldValue = e.value;</div><div class="line">                e.value = value;</div><div class="line">                e.recordAccess(this);</div><div class="line">                return oldValue;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        // 添加一次修改</div><div class="line">        modCount++;</div><div class="line">        // 将key、value添加至i位置处 替换</div><div class="line">        addEntry(hash, key, value, i);</div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<h4 id="计算哈希值的方法"><a href="#计算哈希值的方法" class="headerlink" title="计算哈希值的方法"></a>计算哈希值的方法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">static int hash(int h) &#123;</div><div class="line">	h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);</div><div class="line">	return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>我们知道对于HashMap的table而言,数据分布需要均匀（最好每项都只有一个元素,这样就可以直接找到）,不能太紧也不能太松,太紧会导致查询速度慢,太松则浪费空间。计算hash值后,怎么才能保证table元素分布均与呢？我们会想到取模,但是由于取模的消耗较大,HashMap是这样处理的：调用indexFor方法。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">static int indexFor(int h, int length) &#123;</div><div class="line">&lt;!--assert Integer.bitCount(length) == 1 : &quot;length must be a non-zero power of 2&quot;;--&gt;</div><div class="line">        return h &amp; (length - 1);</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-<p>HashMap的底层数组长度总是2的n次方,在构造函数中存在：capacity &lt;&lt;= 1;这样做总是能够保证HashMap的底层数组长度为2的n次方。当length为2的n次方时,h&amp;(length - 1)就相当于对length取模,而且速度比直接取模快得多,这是HashMap在速度上的一个优化。</p>
-<h3 id="取数据"><a href="#取数据" class="headerlink" title="取数据"></a>取数据</h3><p>数据获取用的是<code>get(key)</code>的形式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">	&lt;!--key为空的情况下,内容的获取--&gt;</div><div class="line">	if (key == null)</div><div class="line">		return getForNullKey();</div><div class="line">	Entry&lt;K, V&gt; entry = getEntry(key);</div><div class="line">	return null == entry ? null : entry.getValue();</div><div class="line">&#125;</div><div class="line">&lt;!--获取方法--&gt;</div><div class="line">private V getForNullKey() &#123;</div><div class="line">  if (size == 0) &#123;</div><div class="line">   return null;</div><div class="line"> &#125;</div><div class="line"> for (HashMapEntry&lt;K, V&gt; e = table[0]; e != null; e = e.next) &#123;</div><div class="line">   if (e.key == null)</div><div class="line">    return e.value;</div><div class="line">&#125;</div><div class="line">return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>还有个比较重要的方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">final Entry&lt;K, V&gt; getEntry (Object key) &#123;</div><div class="line">  if (size == 0) &#123;</div><div class="line">    return null;</div><div class="line">  &#125;</div><div class="line">  int hash = (key == null) ? 0 : sun.misc.Hashing.singleWordWangJenkinsHash(key);</div><div class="line">  for (HashMapEntry&lt;K, V&gt; e = table[indexFor(hash, table.length)]; e != null;</div><div class="line">    e = e.next) &#123;</div><div class="line">    Object k;</div><div class="line">  if (e.hash == hash &amp;&amp; ((k = e.key) == key || (key != null &amp;&amp;key.equals(k)))) </div><div class="line">    return e;</div><div class="line">&#125;</div><div class="line">return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>Entry是Map接口内的一个接口,他的作用就是包装一个map的节点,这个节封装了key,value,以及别的值（比如hashmap中的哈希码和next指针）,方便对Map的操作。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>由此看出,数据结构基础不好,看这个真费劲。明白是明白,但是真叫你一点点写出来,是想扑街的。</p>
-<p>HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象。当我们将键值对传递给put()方法时，它调用键对象的hashCode()方法来计算hashcode，然后找到bucket位置来储存值对象。当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 HashMap在每个链表节点中储存键值对对象。<br>当两个不同的键对象的hashcode相同时会发生什么？ 它们会储存在同一个bucket位置的链表中。键对象的equals()方法用来找到键值对。<br>因为HashMap的好处非常多，我曾经在电子商务的应用中使用HashMap作为缓存。因为金融领域非常多的运用Java，也出于性能的考虑，我们会经常用到HashMap和ConcurrentHashMap。</p>
-<p>尊重原创,借鉴：<em><a href="http://www.cnblogs.com/chenssy/p/3521565.html" target="_blank" rel="external">http://www.cnblogs.com/chenssy/p/3521565.html</a></em></p>
 
           
         
@@ -1756,7 +1730,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
