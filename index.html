@@ -267,6 +267,183 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/27/Java线程间通信的理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/27/Java线程间通信的理解/" itemprop="url">Java线程间通信的理解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-27T18:45:08+08:00">
+                2018-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>一般来说，每个线程自己完成自己的任务就可以了，但有时候，线程的处理会依赖另一个线程的数据，所以就需要线程间通信，来达到同步信息的效果。</p>
+<p>下面通过几个例子，配合线程通信的方法来描述一下对他们的理解。</p>
+<h3 id="关键字-方法"><a href="#关键字-方法" class="headerlink" title="关键字(方法)"></a>关键字(方法)</h3><p><code>Thread.join()</code>,<code>Object.wait()</code>,<code>Object.notify()</code>,<code>CountdownLatch</code>, <code>CyclicBarrier</code>。</p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ol>
+<li><p><code>Thread.join()</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demoJoin</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Thread A = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          System.out.println(<span class="string">"A"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">    Thread B = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span>&#123;</span><br><span class="line">              A.join();</span><br><span class="line">            &#125;<span class="keyword">catch</span>(InterruptedException e)&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">          System.out.println(<span class="string">"B"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">  Thread C = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          System.out.println(<span class="string">"C"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">    C.start();</span><br><span class="line">    B.start();</span><br><span class="line">    A.start(); </span><br><span class="line">&#125;</span><br><span class="line">结果：CAB,ABC</span><br></pre></td></tr></table></figure>
+<p>join的意思是在当前线程执行的过程中，把CPU让给另一个线程来执行。(可以控制线程依次执行)</p>
+<ul>
+<li>A：大哥；B：小弟；C：路人</li>
+<li>兄弟一场，只要有我B的地方，肯定让A兄先发财。</li>
+<li>大哥要是已经发财，小弟我就自己努力了</li>
+<li>路人？他爱在哪在哪，反正小弟永远遵守上面两条</li>
+</ul>
+</li>
+<li><p><code>Object.wait()</code>,<code>Object.notify()</code>.<br>B是A的小外甥，A是B的长辈，季节到了，上来一批海货(梭子蟹)，小可爱非常的馋可是又非常懂事，中间的谦让就不说了，最后长辈不吃或者吃了一个之后就给小可爱吃了，小可爱吃够了长辈才吃，下面我们用代码模拟一下这个传统美德。</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demoWait</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> String lock = <span class="string">"螃蟹"</span>;<span class="comment">//两人共享一盘梭子蟹</span></span><br><span class="line">        <span class="keyword">final</span> Thread A = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"A----螃蟹1"</span>);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        lock.wait();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(<span class="string">"A----螃蟹2"</span>);</span><br><span class="line">                    System.out.println(<span class="string">"A----螃蟹3"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        Thread B = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"B----螃蟹1"</span>);</span><br><span class="line">                    System.out.println(<span class="string">"B----螃蟹2"</span>);</span><br><span class="line">                    System.out.println(<span class="string">"B----螃蟹3"</span>);</span><br><span class="line">                    lock.notify();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        A.start();</span><br><span class="line">        B.start();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    结果：</span><br><span class="line">    A----螃蟹<span class="number">1</span></span><br><span class="line">    B----螃蟹<span class="number">1</span></span><br><span class="line">    B----螃蟹<span class="number">2</span></span><br><span class="line">    B----螃蟹<span class="number">3</span></span><br><span class="line">    A----螃蟹<span class="number">2</span></span><br><span class="line">    A----螃蟹<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>如果不加锁，在执行一个线程的时候另一个会抢占。<br><code>wait()</code>方法表示当前线程让出执行权，<code>notify()</code>表示唤醒<code>wait()</code>状态的线程。</p>
+<ol start="3">
+<li><code>CountdownLatch</code><br>战争爆发了,D接到命令去保护ABC三个连队撤离。<br>有一个方案，ABC依次撤离，D最后（ABC依次撤离），实现方式在D中joinC,依次类推。但是那个时候谁先来谁先走呗，这样做效率太慢了，作为D来讲，我只要保证三个部队过去就行，你们仨爱咋办咋办，面向对象对不对。好的，那我掰指头算一下，走完仨就撤。<br>要模拟这个场景，看来我们需要一个计数器，ABC并行。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">protectedArmy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> armyNum = <span class="number">3</span>;</span><br><span class="line">        <span class="keyword">final</span> CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(armyNum);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> army = <span class="string">'A'</span>; army &lt;= <span class="string">'C'</span>; army++) &#123;</span><br><span class="line">            <span class="keyword">final</span> String name = String.valueOf(army);</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    System.out.println(name + <span class="string">"部队正在撤离"</span>);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">100</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(name + <span class="string">"部队已经撤离"</span>);</span><br><span class="line">                    countDownLatch.countDown();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"D 正在断后（等待其他部队撤离）"</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    countDownLatch.await();</span><br><span class="line">                    System.out.println(<span class="string">"ABC撤离完毕，D可以撤离了"</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">结果：</span><br><span class="line">D部队正在断后（等待其他部队撤离）</span><br><span class="line">A部队正在撤离</span><br><span class="line">B部队正在撤离</span><br><span class="line">C部队正在撤离</span><br><span class="line">A部队已经撤离</span><br><span class="line">B部队已经撤离</span><br><span class="line">C部队已经撤离</span><br><span class="line">ABC撤离完毕，D可以撤离了</span><br></pre></td></tr></table></figure>
+<p>具体实现过程是：<br>创建一个计数器，设置总的需要等待的线程数，然后再等待线程中调用<code>countDownLatch.await()</code>方法，进入等待状态，直到计数值变成 0;在被等待线程中调用其他线程中调用<code>countDownLatch.countDown()</code>方法，执行一次会将等待数目减去1，当变成0的时候，等待线程不再wait，继续执行之后的代码。</p>
+<ol start="4">
+<li><code>CyclicBarrier</code><br> 有个赛车比赛，3名选手参赛，人齐才能开始，代码模拟一下。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">runABCWhenAllReady</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">int</span> runner = <span class="number">3</span>;</span><br><span class="line">       <span class="keyword">final</span> CyclicBarrier cyclicBarrier = <span class="keyword">new</span> CyclicBarrier(runner);</span><br><span class="line">       <span class="keyword">final</span> Random random = <span class="keyword">new</span> Random();</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">char</span> runnerName = <span class="string">'A'</span>; runnerName &lt;= <span class="string">'C'</span>; runnerName++) &#123;</span><br><span class="line">           <span class="keyword">final</span> String rN = String.valueOf(runnerName);</span><br><span class="line">           <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">               <span class="meta">@Override</span></span><br><span class="line">               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                   <span class="keyword">long</span> prepareTime = random.nextInt(<span class="number">10000</span>) + <span class="number">100</span>;</span><br><span class="line">                   System.out.println(<span class="string">"裁判等了"</span> + prepareTime + <span class="string">"毫秒，"</span> + rN + <span class="string">"选手到了"</span>);</span><br><span class="line">                   <span class="keyword">try</span> &#123;</span><br><span class="line">                       Thread.sleep(prepareTime);</span><br><span class="line">                   &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                       e.printStackTrace();</span><br><span class="line">                   &#125;</span><br><span class="line">                   <span class="keyword">try</span> &#123;</span><br><span class="line">                       System.out.println(rN + <span class="string">"选手准备好了，在等其他人"</span>);</span><br><span class="line">                       cyclicBarrier.await(); <span class="comment">// 当前选手准备好，等待其他人</span></span><br><span class="line">                   &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                       e.printStackTrace();</span><br><span class="line">                   &#125; <span class="keyword">catch</span> (BrokenBarrierException e) &#123;</span><br><span class="line">                       e.printStackTrace();</span><br><span class="line">                   &#125;</span><br><span class="line">                   System.out.println(rN + <span class="string">"比赛开始"</span>); <span class="comment">// 人齐开始比赛</span></span><br><span class="line">               &#125;</span><br><span class="line">           &#125;).start();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   结果：</span><br><span class="line">   裁判等了<span class="number">133</span>毫秒，A选手到了</span><br><span class="line">   裁判等了<span class="number">1642</span>毫秒，B选手到了</span><br><span class="line">   裁判等了<span class="number">8062</span>毫秒，C选手到了</span><br><span class="line">   A选手准备好了，在等其他人</span><br><span class="line">   B选手准备好了，在等其他人</span><br><span class="line">   C选手准备好了，在等其他人</span><br><span class="line">   C比赛开始</span><br><span class="line">   A比赛开始</span><br><span class="line">   B比赛开始</span><br></pre></td></tr></table></figure>
+<p>实现过程：<br>先创建一个公共 CyclicBarrier 对象，设置同时等待的线程数，这些线程同时开始自己做准备，自身准备完毕后，需要等待别人准备完毕，这时调用<code>cyclicBarrier.await()</code>; 即可开始等待别人；<br>当指定的同时等待的线程数都调用了<code>cyclicBarrier.await()</code>时，意味着这些线程都准备完毕好，然后这些线程同时继续执行。</p>
+<p> **CyclicBarrier与CountDownLatch比较</p>
+<pre><code>- CountDownLatch:一个线程(或者多个)，等待另外N个线程完成某个事情之后才能执行；CyclicBarrier:N个线程相互等待，任何一个线程完成之前，所有的线程都必须等待。
+- CountDownLatch:一次性的；CyclicBarrier:可以重复使用。
+- CountDownLatch基于AQS；CyclicBarrier基于锁和Condition。本质上都是依赖于volatile和CAS实现的。**
+</code></pre>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/25/轮回/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -661,118 +838,6 @@
 </ul>
 <p><em>为什么会有两个呢，内容好像都差不多：你想啊，你发送事件的时候，发的是事件（eventType）吧，如果只有一个容器，你是不是还得遍历类名，然后遍历类中的方法去调用。两个容器刚好根据功能区分开，一个用在注册的时候，另一个用在查状态以及注销的时候，你注销不是传的类名吗，我就去typesBySubscriber里面拿到你的信息，然后根据subscriptionsByEventType，去里面剔除掉你，效率也提高了，也容易理解了。</em></p>
 <h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上是对EventbUs3.0的简单解析，欢迎勘误</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/r-u-kidding-me/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/15/r-u-kidding-me/" itemprop="url">r u kidding me</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T22:09:06+08:00">
-                2018-04-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我只是想写点东西，hexo却给我报错，什么npm，npde一大堆，转了一大圈也没解决好，你就不能让我省省心吗？一会我就卸载你们仨重新装！</p>
 
           
         
@@ -1613,7 +1678,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1624,7 +1689,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
