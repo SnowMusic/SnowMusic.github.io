@@ -267,6 +267,221 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/06/java常用集合知识点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="朱瑞雪">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="朱瑞雪的写字板">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/06/java常用集合知识点/" itemprop="url">java常用集合知识点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-06T20:16:06+08:00">
+                2018-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="Java容器类介绍"><a href="#Java容器类介绍" class="headerlink" title="Java容器类介绍"></a>Java容器类介绍</h3><p>这里主要介绍常用的集合的结构。<br>涉及到ArrayList,HashSet,LinkedList,TreeSet，HashTable，ConcurrentHashMap。<br>容器类分为Collection和Map这里是摘抄自网上的一张继承关系图。<br><img src="http://phk41jbu6.bkt.clouddn.com/java%E9%9B%86%E5%90%88%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png"></p>
+<p>Map是用于保存具有映射关系的数据(key——value)<br><img src="http://phk41jbu6.bkt.clouddn.com/Javamap.png"><br>关于HashMap，之前有一篇文章讲到过，区别于ArrayMap，HashTable。</p>
+<p>基本的Api就不写了，主要写写区别。</p>
+<h4 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h4><h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>HashSet实现了Set接口，去看他的构造函数，你会发现他其实是包装了一个HashMap</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">HashSet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>所以，在不看他代码之前，你有没有什么想法呢。显然，他有Set的属性，其他的添加删除以及判断方法都和HashMap有关。比如 add()方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123; </span><br><span class="line">       <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里有个点，hashset判断两个对象是否相同，用的是和hashmap判断key一个方法，只不过key变成了当前的object</strong></p>
+<p>可能你会好奇这个<code>PRESENT</code>是干嘛的，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// Dummy value to associate with an Object in the backing Map</span><br><span class="line">  private static final Object PRESENT = new Object();</span><br></pre></td></tr></table></figure>
+<p>假如让我来设计这个HashSet，我哪里会那么多脑细胞给你想这个，但是我懂HashMap啊，刚好HashMap的key不会重复，可以拿来用。判断是否添加成功就看在put的时候，这个值是不是null(知识点：HashMap的put方法会返回oldValue)。至于value放什么无所谓了，HashSet造了个假数据，就叫<code>PRESENT</code><br>诶，这里就有疑问了，为什么不直接用null呢，效率高。</p>
+<ul>
+<li>hashset的remove </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> public boolean remove(Object o) &#123;</span><br><span class="line">    return map.remove(o)==PRESENT;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>用的是hashmap的remove，那你想啊，我remove之后返回了个null，我是remove掉一个null呢，还是本身就没有这个key。但是用<code>PRESENT</code>就不一样了，你不可能和我一样。</strong></p>
+<p>（最近晚上睡不着会听相声，写个博客都像在说单口）</p>
+<h4 id="LinkedHashSet"><a href="#LinkedHashSet" class="headerlink" title="LinkedHashSet"></a>LinkedHashSet</h4><h5 id="实现-1"><a href="#实现-1" class="headerlink" title="实现"></a>实现</h5><p>他的实现就不说了吧。<br>说来写的也简单。直接在构造函数那里就留一个配置项给子类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HashSet(int initialCapacity, float loadFactor, boolean dummy) &#123;</span><br><span class="line">      map = new LinkedHashMap&lt;&gt;(initialCapacity, loadFactor);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public LinkedHashSet(int initialCapacity, float loadFactor) &#123;</span><br><span class="line">      super(initialCapacity, loadFactor, true);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>不得不佩服作者的这些巧妙的地方，就像以前写作文，谁都会背书上的那些古诗，可是能把他们融入到作文中的才厉害。</p>
+<h4 id="Hashtable"><a href="#Hashtable" class="headerlink" title="Hashtable"></a>Hashtable</h4><p>我几乎每次面试都会问到Hashtable。</p>
+<h5 id="实现-2"><a href="#实现-2" class="headerlink" title="实现"></a>实现</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class Hashtable&lt;K,V&gt;</span><br><span class="line">    extends Dictionary&lt;K,V&gt;</span><br><span class="line">    implements Map&lt;K,V&gt;, Cloneable, java.io.Serializable &#123;...&#125;</span><br><span class="line">    </span><br><span class="line">public class HashMap&lt;K, V&gt;</span><br><span class="line">        extends AbstractMap&lt;K, V&gt;</span><br><span class="line">        implements Map&lt;K, V&gt;, Cloneable, Serializable &#123;...&#125;</span><br></pre></td></tr></table></figure>
+<p>这样看比较明显。<br>我们发现他俩直接父类不一样，Dictionary是个什么鬼？</p>
+<ul>
+<li>The <code>Dictionary</code> class is the abstract parent of any<ul>
+<li>class, such as <code>Hashtable</code>, which maps keys to values.</li>
+<li>Every key and every value is an object. In any one <tt>Dictionary</tt></li>
+<li>object, every key is associated with at most one value. Given a</li>
+<li><tt>Dictionary</tt> and a key, the associated element can be looked up.</li>
+<li>Any non-<code>null</code> object can be used as a key and as a value.</li>
+<li>As a rule, the <code>equals</code> method should be used by</li>
+<li>implementations of this class to decide if two keys are the same.</li>
+<li><strong>NOTE: This class is obsolete（过时）.  New implementations should</strong></li>
+<li>implement the Map interface, rather than extending this class.<br>哈哈，这段英文大概都能看得懂， 简单讲了自己是键值对的一个父类，你需要重写equals方法，但是已经过时了，推荐你用map接口(ConcurrentHashMap)。<br>讲归这么讲，但是面试官问你你总不能说过时了吧，知其然知其所以然嘛。</li>
+</ul>
+</li>
+</ul>
+<p>详细的代码就自己去看吧，他是JDK1.0引入的，和hashmap(JDK1.2)非常相似，<br><code>public synchronized V put(K key, V value) {...}</code><br>从这里你也看得出，他是线程安全的，同时加了重入锁之后也会有效率低下的问题。</p>
+<h5 id="区别于HashMap"><a href="#区别于HashMap" class="headerlink" title="区别于HashMap"></a>区别于HashMap</h5><ol>
+<li>继承父类</li>
+<li>hashtable线程安全</li>
+<li><p>hashtable的value和key为null的时候会空指针，hashmap的key为null的时候会放在第0个位置。但是看代码的时候你会发现hashtable只对value做了null判断，key为null是在key.hashcode()之后，给了个运行时异常，这里不是很懂为什么作者不直接判断。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> Hashtable</span><br><span class="line">   public synchronized V put(K key, V value) &#123;</span><br><span class="line">    // Make sure the value is not null</span><br><span class="line">    if (value == null) &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">HashMap</span><br><span class="line">public V put(K key, V value) &#123;</span><br><span class="line">    if (table == EMPTY_TABLE) &#123;</span><br><span class="line">        inflateTable(threshold);</span><br><span class="line">    &#125;</span><br><span class="line">    if (key == null)</span><br><span class="line">        return putForNullKey(value);</span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">   private V putForNullKey(V value) &#123;</span><br><span class="line">    ···</span><br><span class="line">    addEntry(0, null, value, 0);</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>HashMap把Hashtable的contains方法去掉了，改成containsValue和containsKey，因为contains方法容易让人引起误解。 HashTable的 containsValue方法直接返回了contains方法，可能在那个年代这样做是为了人性化？ </p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public boolean containsValue(Object value) &#123;</span><br><span class="line">       return contains(value);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>两个遍历方式的内部实现上不同。Hashtable、HashMap都使用了 Iterator。而由于历史原因，Hashtable还使用了Enumeration的方式 。</p>
+</li>
+<li><p>hash值不同。哈希值的使用不同，HashTable直接使用对象的hashCode。而HashMap重新计算hash值。</p>
+</li>
+</ol>
+<h4 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h4><p>你可以使用Collections.synchronizedMap(HashMap)来包装HashMap作为同步容器，这时它的作用几乎与Hashtable一样,当每次对Map做修改操作的时候都会锁住这个Map对象，而ConcurrentHashMap会基于并发的等级来划分整个Map来达到线程安全，它只会锁操作的那一段数据而不是整个Map都上锁。</p>
+<h5 id="实现-3"><a href="#实现-3" class="headerlink" title="实现"></a>实现</h5><h5 id="ConcurrentHashMap-Hashtable-Collection-synchronizedMap区别"><a href="#ConcurrentHashMap-Hashtable-Collection-synchronizedMap区别" class="headerlink" title="ConcurrentHashMap,Hashtable,Collection.synchronizedMap区别"></a>ConcurrentHashMap,Hashtable,Collection.synchronizedMap区别</h5><ol>
+<li><p>Hashtable和Collection.synchronizedMap的实现方式类似，在所有方法上都加了synchronized锁，唯一一点区别就是，后者有更多的扩展性，只要是map都可以进行线程安全的处理<br><code>Collection.synchronizedMap(HashMap)</code>,<code>Collection.synchronizedMap(ArrayMap)</code> </p>
+</li>
+<li><p>ConcurrentHashMap默认支持16个线程并发访问，而不用添加外部的锁，内部用了CAS锁技术，JDK8之前用的是分段锁(Segment[可以了解一下这俩锁])。处理并发请求的时候，他并不是将整个map锁住，ConcurrentHashMap的锁的粒度达到哈系桶的水平，只锁住部分，所以它处理并发的性能比其他两个好太多。</p>
+</li>
+<li>ConcurrentHashMap和Hashtable一样不允许空值，但是Collection.synchronizedMap允许.</li>
+</ol>
+<h5 id="延伸【SynchronizedList和Vector的区别】"><a href="#延伸【SynchronizedList和Vector的区别】" class="headerlink" title="延伸【SynchronizedList和Vector的区别】"></a>延伸【SynchronizedList和Vector的区别】</h5><p>他俩的关系和Collection.synchronizedMap与Hashtable有些像，vector的锁加在方法上，synchronizedList锁在代码块上，代码很简单，看代码能发现add()方法中明显的区别。<br>Vector的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    insertElementAt(element, index);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">insertElementAt</span><span class="params">(E obj, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">if</span> (index &gt; elementCount) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ArrayIndexOutOfBoundsException(index</span><br><span class="line">                                                 + <span class="string">" &gt; "</span> + elementCount);</span><br><span class="line">    &#125;</span><br><span class="line">    ensureCapacityHelper(elementCount + <span class="number">1</span>);</span><br><span class="line">    System.arraycopy(elementData, index, elementData, index + <span class="number">1</span>, elementCount - index);</span><br><span class="line">    elementData[index] = obj;</span><br><span class="line">    elementCount++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureCapacityHelper</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// overflow-conscious code</span></span><br><span class="line">    <span class="keyword">if</span> (minCapacity - elementData.length &gt; <span class="number">0</span>)</span><br><span class="line">        grow(minCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>synchronizedList的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">synchronized</span> (mutex) &#123;</span><br><span class="line">       list.add(index, element);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">ArrayList的add方法:</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    rangeCheckForAdd(index);</span><br><span class="line">    ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></span><br><span class="line">    System.arraycopy(elementData, index, elementData, index + <span class="number">1</span>,</span><br><span class="line">                     size - index);</span><br><span class="line">    elementData[index] = element;</span><br><span class="line">    size++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>如果使用add方法，那么他们的扩容机制不一样(vector和arraylist的扩容区别),ArrayList以1.5倍的方式在扩容、Vector 当扩容容量增量大于0时、新数组长度为原数组长度+扩容容量增量、否则新数组长度为原数组长度的2倍。 </li>
+<li><p>SynchronizedList可以指定锁定的对象<code>mutex</code>(SynchronizedMap不支持，锁定对象是自己生成的)。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">synchronizedList</span><span class="params">(List&lt;T&gt; list, Object mutex)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (list <span class="keyword">instanceof</span> RandomAccess ?</span><br><span class="line">            <span class="keyword">new</span> SynchronizedRandomAccessList&lt;&gt;(list, mutex) :</span><br><span class="line">            <span class="keyword">new</span> SynchronizedList&lt;&gt;(list, mutex));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>深入的东西肯定还有很多，比如书TreeMap。每天上班的时间也很拥挤，先介绍到这里吧。<br>革命尚未成功，同志仍需努力！</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/27/Java线程间通信的理解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -394,6 +609,11 @@
 <li>CountDownLatch:一次性的；CyclicBarrier:可以重复使用。</li>
 <li>CountDownLatch基于AQS；CyclicBarrier基于锁和Condition。本质上都是依赖于volatile和CAS实现的</li>
 </ul>
+<h4 id="Callable"><a href="#Callable" class="headerlink" title="Callable"></a>Callable</h4><p>如果想在线程结束之后给你结果，可能就要用到Callable和FutureTask。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ticket</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Ticket ticket = <span class="keyword">new</span> Ticket();</span><br><span class="line">        FutureTask&lt;Integer&gt; ft = <span class="keyword">new</span> FutureTask&lt;&gt;(ticket);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" 的循环变量i的值"</span> + i);</span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(ft, <span class="string">"有返回值的线程"</span>).start();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"子线程的返回值:"</span> + ft.get());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">" "</span> + i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> i+<span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">main 的循环变量i的值<span class="number">0</span></span><br><span class="line">main 的循环变量i的值<span class="number">1</span></span><br><span class="line">main 的循环变量i的值<span class="number">2</span></span><br><span class="line">有返回值的线程 <span class="number">0</span></span><br><span class="line">有返回值的线程 <span class="number">1</span></span><br><span class="line">有返回值的线程 <span class="number">2</span></span><br><span class="line">有返回值的线程 <span class="number">3</span></span><br><span class="line">子线程的返回值:<span class="number">14</span></span><br></pre></td></tr></table></figure>
+<p>call方法里并没有打印，但是循环确实运行了。<br>过程：<br>(1)创建Callable接口的实现类，并实现call()方法，该call()方法将作为线程执行 体，并且有返回值。<br>(2)创建Callable实现类的实例，使用FutureTask类来包装Callable对象，该 FutureTask对象封装了该Callable对象的call()方法的返回值。<br>(3)使用FutureTask对象作为Thread对象的target创建并启动新线程。<br>(4)调用FutureTask对象的get()方法来获得子线程执行结束后的返回值，调用 get()方法会阻塞线程。</p>
+<h4 id="两个线程如何交替运行"><a href="#两个线程如何交替运行" class="headerlink" title="两个线程如何交替运行"></a>两个线程如何交替运行</h4><p>两个线程交替打印数字，你打印一个我打印一个，我用锁写了一个实现方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ticket</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    Object x = <span class="string">"90"</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> total = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">static</span> Ticket t1 = <span class="keyword">new</span> Ticket();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        printMethod();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread A = <span class="keyword">new</span> Thread(t1);</span><br><span class="line">        Thread B = <span class="keyword">new</span> Thread(t1);</span><br><span class="line">        A.setName(<span class="string">"A"</span>);</span><br><span class="line">        B.setName(<span class="string">"B"</span>);</span><br><span class="line">        A.start();</span><br><span class="line">        B.start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (x) &#123;</span><br><span class="line">            <span class="keyword">for</span> (; total &lt; <span class="number">20</span>; total++) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"------"</span> + total);</span><br><span class="line">                x.notify();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    x.wait();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">结果:</span><br><span class="line">A------<span class="number">10</span></span><br><span class="line">B------<span class="number">10</span></span><br><span class="line">A------<span class="number">11</span></span><br><span class="line">B------<span class="number">12</span></span><br><span class="line">A------<span class="number">13</span></span><br><span class="line">B------<span class="number">14</span></span><br><span class="line">A------<span class="number">15</span></span><br><span class="line">B------<span class="number">16</span></span><br><span class="line">A------<span class="number">17</span></span><br><span class="line">B------<span class="number">18</span></span><br><span class="line">A------<span class="number">19</span></span><br></pre></td></tr></table></figure>
 
           
         
@@ -1461,156 +1681,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/25/algo算法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="朱瑞雪">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/16384834?v=3&u=27bcaa390798e3685cf8b8670bdfd7b8074cc000&s=400">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="朱瑞雪的写字板">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/25/algo算法/" itemprop="url">算法题练手</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-25T15:12:50+08:00">
-                2017-05-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/技术/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ul>
-<li><p>1.海滩上有一堆桃子，五只猴子来分。第一只猴子把这堆桃子凭据分为五份，多了一个，这只猴子把多的一个扔入海中，拿走了一份。第二只猴子把剩下的桃子又平均分成五份，又多了一个，它同样把多的一个扔入海中，拿走了一份，第三、第四、第五只猴子都是这样做的，问海滩上原来最少有多少个桃子？</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Monkey</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 思路： 每次拿掉一个桃子之后，剩下的一定是5的倍数，反复五次</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">getNo</span><span class="params">(<span class="keyword">int</span> sum)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((sum - <span class="number">1</span>) % <span class="number">5</span> == <span class="number">0</span>) &#123;</span><br><span class="line">                sum = (sum - <span class="number">1</span>) * <span class="number">4</span> / <span class="number">5</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Monkey t = <span class="keyword">new</span> Monkey();</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (t.getNo(i)) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(i);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>2.括号配对问题：数据保证S中只含有<code>[</code>,<code>]</code>,<code>(</code>,<code>)</code>四种字符，每组输入数据的输出占一行，如果该字符串中所含的括号是配对的，则输出Yes,如果不配对则输出No</p>
-<p>  <code>思路：把字符串丢进堆栈里面，如果下一个字符和上一个匹配，就把栈顶的拿出来。</code></p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ACMModel</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">static</span> String a = <span class="string">"[[()]]"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> String ml = <span class="string">"["</span>;</span><br><span class="line">    <span class="keyword">static</span> String mr = <span class="string">"]"</span>;</span><br><span class="line">    <span class="keyword">static</span> String sl = <span class="string">"("</span>;</span><br><span class="line">    <span class="keyword">static</span> String sr = <span class="string">")"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> size = a.length();</span><br><span class="line"></span><br><span class="line">        Stack&lt;Character&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span> (String.valueOf(a.charAt(<span class="number">0</span>)).equals(mr) ||</span><br><span class="line">                String.valueOf(a.charAt(<span class="number">0</span>)).equals(sr)) &#123;</span><br><span class="line">            System.out.println(<span class="string">"no"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">                String temp = String.valueOf(a.charAt(i));</span><br><span class="line">                <span class="keyword">if</span> (stack.empty()) &#123;</span><br><span class="line">                    stack.push(a.charAt(i));</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (String.valueOf(stack.peek()).equals(ml) &amp;&amp; </span><br><span class="line">                    temp.equals(mr)&#123;</span><br><span class="line">                        stack.pop();</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (String.valueOf(stack.peek()).equals(sl) &amp;&amp; 										temp.equals(sr)) &#123;</span><br><span class="line">                        stack.pop();</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        stack.push(a.charAt(i));</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!stack.empty()) &#123;</span><br><span class="line">                System.out.println(<span class="string">"no"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">"yes"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>3.计算数组中单词出现的次数</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String[] array = &#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"a"</span>&#125;;</span><br><span class="line">        System.out.println(<span class="string">"method1:"</span> + methodOne(array).toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> HashMap <span class="title">methodOne</span><span class="params">(String[] array)</span> </span>&#123;</span><br><span class="line">        HashMap&lt;String, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; array.length; i++) &#123;</span><br><span class="line">            Integer count = map.get(array[i]);</span><br><span class="line">            <span class="keyword">if</span> (count == <span class="keyword">null</span>) &#123;</span><br><span class="line">                map.put(array[i], <span class="number">1</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                map.put(array[i], count + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<ul>
-<li>4.100个男性朋友围成一个圈，从1号开始数，数到第3个人就out，最后留下来的人把女神许配给他。<br>  问：哪个位置才是幸运儿？</li>
-</ul>
-<p><code>思路：双向链表把数据挨个丢进去，并把最后一个值指向第一个值。遇到满足条件的就删除。最后节点的下一个和当前是同一个的时候就结束。（answer：91）</code></p>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line">    int killSpace = 3;//从1开始但不包括1 第几个出圈</span><br><span class="line">    int totalData = 100;//总共的参与人数</span><br><span class="line">    Mode mode;</span><br><span class="line">    Mode current = new Mode(1);</span><br><span class="line">    mode = current;</span><br><span class="line">    for (int i = 2; i &lt;= totalData; i++) &#123;</span><br><span class="line">        current.next = new Mode(i);</span><br><span class="line">        current.next.pre = current;</span><br><span class="line">        current = current.next;</span><br><span class="line">    &#125;</span><br><span class="line">   //mode.print();</span><br><span class="line">    current.next = mode;</span><br><span class="line">    mode.pre = current;</span><br><span class="line"></span><br><span class="line">    int i = 1;</span><br><span class="line">    //mode.pre.next = mode.next;</span><br><span class="line">    //mode.next.pre = mode.pre;</span><br><span class="line">   // mode = mode.next;</span><br><span class="line"></span><br><span class="line">    while (mode != mode.next) &#123;</span><br><span class="line">        if (i % killSpace == 0) &#123;</span><br><span class="line">            System.out.println(&quot;delete ====&quot; + mode.current);</span><br><span class="line">            mode.pre.next = mode.next;</span><br><span class="line">            mode.next.pre = mode.pre;</span><br><span class="line">            mode = mode.pre.next;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            mode = mode.next;</span><br><span class="line">        &#125;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(mode.current);</span><br><span class="line">    System.out.println(mode.next);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static class Mode &#123;</span><br><span class="line">    int current;</span><br><span class="line">    Mode next;</span><br><span class="line">    Mode pre;</span><br><span class="line"></span><br><span class="line">    Mode(int current) &#123;</span><br><span class="line">        this.current = current;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    void print() &#123;</span><br><span class="line">        System.out.println(current);</span><br><span class="line">        Mode pr = next;</span><br><span class="line">        while (pr != null) &#123;</span><br><span class="line">            System.out.println(pr.current);</span><br><span class="line">            if (pr == pr.next) break;</span><br><span class="line">            pr = pr.next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</code></pre>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1660,7 +1730,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1671,7 +1741,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
